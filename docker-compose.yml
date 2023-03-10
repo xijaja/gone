@@ -1,0 +1,75 @@
+version: "3"
+
+# docker compose 启动的服务
+# 这里是一个模版，可以根据需要添加多个服务或删除不需要的服务
+services:
+  backend: # 服务名称：后端程序，可以根据需要修改，比如：fiberapp
+    build:
+      context: . # 构建上下文
+      dockerfile: Dockerfile # 构建文件
+    ports:
+      - "3000:3000" # 端口映射，此处一定要映射端口，这是唯一暴露给外部的端口
+    restart: on-failure # 重启策略: 失败重启, 3 次失败后停止, 重启间隔 10s
+    links:
+      - postgresql # 依赖 postgresql 的服务
+      - redis # 依赖 redis 的服务
+      - mongo # 依赖 mongo 的服务
+    networks:
+      - fiber-deploy-net # 指定网络
+
+  postgresql:
+    image: postgres:latest  # 拉取最新的 postgres 镜像
+    # ports:
+    #   - "5432:5432" # 端口映射 5432, 指定了网络, 可以不用映射端口
+    restart: on-failure # 重启策略: 失败重启, 3 次失败后停止, 重启间隔 10s
+    environment:
+      POSTGRES_USER: fiber # 用户名 fiber
+      POSTGRES_PASSWORD: postgres12345  # postgres 的密码
+      POSTGRES_DB: postgres # 数据库名称
+    volumes:
+        - ./postgresql:/var/lib/postgresql/data # 挂载数据卷
+    networks:
+      - fiber-deploy-net # 指定网络
+
+  redis:
+    image: redis:latest  # 拉取最新的 redis 镜像
+    # ports:
+    #   - "6379:6379" # 映射端口 6379, 指定了网络, 可以不用映射端口
+    volumes:
+      - ./redis-data:/data # 将主机当前目录下的 redis-data 挂载到容器的 /data
+    command:
+      --requirepass redis12345 # 设置 redis 密码
+    restart: on-failure  # 重启策略: 失败重启, 3 次失败后停止, 重启间隔 10s，
+    networks:
+      - fiber-deploy-net # 指定网络
+
+  mongo:
+    image: mongo:latest # 拉取最新的 mongo 镜像
+    # ports:
+    #   - "27017:27017" # 映射端口 27017, 指定了网络, 可以不用映射端口
+    volumes:
+      - ./mongo-data:/data # 将主机当前目录下的 mongo-data 挂载到容器的 /data
+    restart: on-failure # 重启策略: 失败重启, 3 次失败后停止, 重启间隔 10s，可选值：no 表示不重启，on-failure 表示失败重启，always 表示总是重启
+    networks:
+      - fiber-deploy-net # 指定网络
+
+# docker compose 网络
+networks:
+  fiber-deploy-net: # 网络名称
+    external: false # 指定网络是否已经存在, 默认为 false，即不存在时创建
+
+
+# 配置说明：
+# docker compose 配置文件中使用网段的好处是：可以在同一网段下的容器之间进行通信，而不需要通过端口映射，
+# 这样可以减少端口占用，提高性能。所以指定了网络就可以不用指定端口映射了。
+# 在程序中连接数据库时，可以直接使用数据库的服务名称，而不是使用端口号，如：postgresql:5432
+# 依赖服务 links 的好处是：可以在容器启动时，自动启动依赖的服务，而不需要手动启动。
+# 重启策略 restart 可选值：no 表示不重启，on-failure 表示失败重启，always 表示总是重启
+
+# docker compose 命令：
+# 创建网段：docker network create fiber-deploy-net
+# 启动 compose: docker-compose up -d
+# 关闭 compose: docker-compose down
+# 查看运行的容器: docker-compose ps
+# 查看容器的日志: docker-compose logs
+# 查看容器的网络: docker-compose network inspect <name>

@@ -1,0 +1,11 @@
+# Dependent file
+node_modules
+*-lock.yaml
+
+# Output files
+dist
+
+# OS files
+.DS_Store
+**/.DS_Store
+.DS_Store?

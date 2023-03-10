@@ -1,0 +1,21 @@
+# IDE files
+.vscode
+.idea
+
+# OS files
+.DS_Store
+**/.DS_Store
+.DS_Store?
+
+# Log files
+logs
+*.log
+
+# Script files
+.sh
+makefile
+Makefile
+http
+
+# Build files
+tmp

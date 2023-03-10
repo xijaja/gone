@@ -1,0 +1,23 @@
+# IDE files
+.idea
+.vscode
+
+# git files
+.git
+.gitignore
+
+# Script files
+*.sh
+makefile
+
+# OS generated files
+.DS_Store
+
+# Others
+*.md
+*.http
+
+# 忽略整个前端项目
+frontend
+!frontend/dist
+
