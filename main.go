@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gone/apis"
 	"gone/middle"
 	"gone/start"
@@ -14,14 +16,20 @@ func main() {
 		Prefork: *start.P,   // 是否启用多线程
 	})
 
-	// 注册路由组
-	// 必须先于 middle.Pages 注册否则其将覆盖 api
-	apis.Api(app)
+	// 启用跨域资源共享，这个目的是为了方便调试
+	// app.Use(cors.New()) // 默认配置
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
-	// 注册中间件
-	middle.Logs(app)  // 日志中间件
-	middle.Pages(app) // 静态文件中间件
+	// 注册路由组和中间件
+	middle.Logs(app)  // 日志中间件，先于其他中间件，防止遗漏日志
+	apis.Api(app)     // 注册路由组，先于静态页面，否则其将覆盖 api
+	middle.Pages(app) // 静态文件，将静态文件打包
 
-	// 启动服务，监听 3000 端口
-	_ = app.Listen(":3000")
+	// 启动服务，监听 6000 端口
+	if err := app.Listen(":6000"); err != nil {
+		fmt.Println("启动服务错误：", err)
+	}
 }

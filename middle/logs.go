@@ -1,10 +1,9 @@
 package middle
 
 import (
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"net/http"
 )
 
 func Logs(app *fiber.App) {

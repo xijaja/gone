@@ -17,7 +17,7 @@ import (
 //go:embed sqlite.db
 var LiteDB embed.FS
 
-// db 数据库连接
+// DB 数据库连接
 var DB *gorm.DB
 
 func init() {
@@ -25,7 +25,7 @@ func init() {
 	config := start.Config
 	// 初始化数据库
 	if config.UsePgSQL {
-		DB = initPostgreSQL()
+		DB = initPostgresSQL()
 	} else {
 		DB = initSqlite()
 	}
@@ -48,8 +48,8 @@ func initSqlite() *gorm.DB {
 	return db
 }
 
-// 初始化 PostgreSQL 数据库
-func initPostgreSQL() *gorm.DB {
+// 初始化 PostgresSQL 数据库
+func initPostgresSQL() *gorm.DB {
 	dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,      // 禁用创建外键约束

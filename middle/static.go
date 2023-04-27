@@ -1,12 +1,11 @@
 package middle
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gone/frontend"
 	"io/fs"
 	"net/http"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 )
 
 func Pages(app *fiber.App) {
@@ -22,6 +21,6 @@ func Pages(app *fiber.App) {
 		Browse:       false,         // 不允许浏览目录
 		Index:        "index.html",  // 默认访问 index.html
 		MaxAge:       0,             // 3600 缓存 1 小时，单位秒，0 表示不缓存
-		NotFoundFile: "index.html",  // 404 时重定向到 index.html
+		NotFoundFile: "index.html",  // 前端是 SPA 所以 404 时重定向到 index.html
 	}))
 }
