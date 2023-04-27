@@ -30,8 +30,8 @@ Gone 远走高飞，前后端一次性部署，一个文件搞定。
 ├── frontend                    # 前端
 │   ├── frontend.go             # 嵌入前端
 │   ├── dist                    # 前端编译后的目录
+│   ├── public                  # 静态资源
 │   ├── src                     # 前端源码
-│   │   ├── assets              # 静态资源
 │   │   ├── index.tsx           # 入口文件
 │   │   ├── pages               # 页面
 │   │   │   └── xxx.tsx         # xxx 页面
