@@ -15,7 +15,7 @@ var S = flag.Bool("s", false, "true 为正式环境，默认 false 测试或开�
 var P = flag.Bool("p", false, "true 为启用多线程，默认 false 不启动")
 var T = flag.Bool("t", false, "true 为启动定时任务，默认 false 不启动")
 
-// 初始化配置
+// Config 初始化配置
 var Config = projectConfig{}
 
 // 初始化配置信息

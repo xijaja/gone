@@ -17,7 +17,7 @@ makefile
 *.md
 *.http
 
-# 忽略整个前端项目
+# 忽略前端代码
 frontend
 !frontend/dist
 

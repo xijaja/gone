@@ -1,11 +1,10 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"gone/apis"
 	"gone/middle"
 	"gone/start"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
