@@ -1,10 +1,9 @@
 package start
 
 import (
+	"github.com/joho/godotenv"
 	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 // ---------------------------------------------
@@ -26,23 +25,19 @@ type projectConfig struct {
 // 读取配置文件
 func (mc *projectConfig) getMyConfig(isProd bool) projectConfig {
 	if isProd {
-		if godotenv.Load() != nil {
+		if godotenv.Load(".env") != nil {
 			log.Fatal("生产环境加载 .env 文件时出错")
 		}
-	} else {
-		if godotenv.Load(".env.dev") != nil {
-			log.Fatal("开发环境加载 .env.dev 文件时出错")
-		}
+		// 前端包管理器
+		mc.PkgManager = os.Getenv("PKG_MANAGER")
+		mc.NeedBuild = os.Getenv("NEED_BUILD") == "true"
+		// PgSQL
+		mc.UsePgSQL = os.Getenv("USE_PGSQL") == "true"
+		mc.PgSQL.Addr = os.Getenv("PGSQL_ADDR")
+		mc.PgSQL.User = os.Getenv("PGSQL_USER")
+		mc.PgSQL.Port = os.Getenv("PGSQL_PORT")
+		mc.PgSQL.Pass = os.Getenv("PGSQL_PASS")
+		mc.PgSQL.Base = os.Getenv("PGSQL_BASE")
 	}
-	// 前端包管理器
-	mc.PkgManager = os.Getenv("PKG_MANAGER")
-	mc.NeedBuild = os.Getenv("NEED_BUILD") == "true"
-	// PgSQL
-	mc.UsePgSQL = os.Getenv("USE_PGSQL") == "true"
-	mc.PgSQL.Addr = os.Getenv("PGSQL_ADDR")
-	mc.PgSQL.User = os.Getenv("PGSQL_USER")
-	mc.PgSQL.Port = os.Getenv("PGSQL_PORT")
-	mc.PgSQL.Pass = os.Getenv("PGSQL_PASS")
-	mc.PgSQL.Base = os.Getenv("PGSQL_BASE")
 	return *mc
 }

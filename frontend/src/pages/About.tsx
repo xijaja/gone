@@ -1,15 +1,11 @@
 import { A } from "@solidjs/router";
+import Layout from "../layouts/Layout";
 
 export default function AboutPage() {
   return (
-    <div>
+    <Layout>
       <h1>About</h1>
       <p>This is the About component.</p>
-
-      <div class="mt-6 flex gap-2">
-        <A href="/">首页</A>
-        <A href="/about">关于</A>
-      </div>
-    </div>
+    </Layout>
   );
 }

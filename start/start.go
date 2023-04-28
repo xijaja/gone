@@ -3,8 +3,6 @@ package start
 import (
 	"flag"
 	"fmt"
-	"gone/utils/cmdrun"
-	"log"
 )
 
 // ---------------------------------------------
@@ -25,14 +23,14 @@ func init() {
 	flag.Parse()
 
 	// 执行编译前端的命令
-	if Config.NeedBuild {
-		switch Config.PkgManager {
-		case "npm", "pnpm", "yarn", "cnpm":
-			cmdrun.RunCmd(fmt.Sprintf("cd ./frontend && %s run build", Config.PkgManager))
-		default:
-			log.Fatal("请在 .env 或 .env.dev 文件中设置 PKG_MANAGER 的值\n例如: PKG_MANAGER = npm")
-		}
-	}
+	// if Config.NeedBuild {
+	// 	switch Config.PkgManager {
+	// 	case "npm", "pnpm", "yarn", "cnpm":
+	// 		cmdrun.RunCmd(fmt.Sprintf("cd ./frontend && %s run build", Config.PkgManager))
+	// 	default:
+	// 		log.Fatal("请在 .env 或 .env.dev 文件中设置 PKG_MANAGER 的值\n例如: PKG_MANAGER = npm")
+	// 	}
+	// }
 
 	// 设置为发布模式
 	if *S {

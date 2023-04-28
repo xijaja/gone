@@ -13,6 +13,7 @@ type Todos struct {
 	Done      int    `gorm:"column:done;type:int(1);default:0" json:"done"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt time.Time
 }
 
 // TableName 重命名表名

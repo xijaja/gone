@@ -9,9 +9,9 @@ func Api(app *fiber.App) {
 	api.Get("/", hello)     // 保留的路由，用以验活
 	api.Get("/hi", hello)   // 保留的路由，用以验活
 
-	// 基于 /api/v1 的路由组
-	v1 := api.Group("v1") // api/v1 路由组
-	todoApi(v1)
+	// 基于 /api/todos 的路由组
+	todos := api.Group("todos") // api/todos 路由组
+	todoApi(todos)
 }
 
 // 服务端 api 路由

@@ -2,16 +2,14 @@ package access
 
 import (
 	"embed"
-	"fmt"
 	"gone/start"
-	"log"
-	"os"
-	"time"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
 )
 
 //go:embed sqlite.db
@@ -29,19 +27,14 @@ func init() {
 	} else {
 		DB = initSqlite()
 	}
-	// 自动迁移，入参如 &Movie{}, &Todos{}
-	if err := DB.AutoMigrate(); err != nil {
-		fmt.Println("数据库迁移失败:", err)
-	}
-	fmt.Println("数据库初始化完成")
 }
 
 // 初始化 Sqlite 数据库
 func initSqlite() *gorm.DB {
-	lite, _ := LiteDB.Open("lite.db")                                   // 获取 LiteDB 的 lite.db 文件
+	lite, _ := LiteDB.Open("sqlite.db")                                 // 获取 LiteDB 的 db 文件
 	liteDB, _ := lite.Stat()                                            // 获取 lite.db 文件的信息
 	var db, err = gorm.Open(sqlite.Open(liteDB.Name()), &gorm.Config{}) // 使用嵌入的 sqlite 数据库
-	// var db, err = gorm.Open(sqlite.Open("lite.db"), &gorm.Config{}) // 使用相对路径的 sqlite 数据库
+	// var db, err = gorm.Open(sqlite.Open("db/access/sqlite.db"), &gorm.Config{}) // 使用相对路径的 sqlite 数据库
 	if err != nil {
 		panic("初始化 Sqlite 数据库恐慌：" + err.Error())
 	}
