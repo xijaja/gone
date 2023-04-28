@@ -70,11 +70,14 @@ cd frontend && pnpm install && pnpm run build
 cd .. && go run main.go
 
 # 5.构建可执行文件
-go build -o app -tags embed main.go
+go build -o app -tags 'sqlite' main.go
 
-# 注意：构建不同的平台需要交叉编译
-GOOS=linux GOARCH=amd64 go build -o app -tags embed main.go
-GOOS=darwin GOARCH=arm64 go build -o app -tags embed main.go
-GOOS=darwin GOARCH=amd64 go build -o app -tags embed main.go
-GOOS=windows GOARCH=amd64 go build -o app.exe -tags embed main.go
+# 不过，要记得编译前端
+cd frontend && pnpm build && cd .. && go build -o app -tags 'sqlite' main.go
+
+# 另外，构建不同的平台需要交叉编译
+GOOS=linux GOARCH=amd64 go build -o app -tags 'sqlite' main.go        # linux
+GOOS=darwin GOARCH=arm64 go build -o app -tags 'sqlite' main.go       # mac m1
+GOOS=darwin GOARCH=amd64 go build -o app -tags 'sqlite' main.go       # mac intel
+GOOS=windows GOARCH=amd64 go build -o app.exe -tags 'sqlite' main.go  # windows
 ```
