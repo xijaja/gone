@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//go:embed sqlite.db
+//go:embed db.sqlite
 var LiteDB embed.FS
 
 // DB 数据库连接
@@ -31,11 +31,18 @@ func init() {
 
 // 初始化 Sqlite 数据库
 func initSqlite() *gorm.DB {
-	lite, _ := LiteDB.Open("sqlite.db")                                 // 获取 LiteDB 的 db 文件
-	liteDB, _ := lite.Stat()                                            // 获取 lite.db 文件的信息
-	var db, err = gorm.Open(sqlite.Open(liteDB.Name()), &gorm.Config{}) // 使用嵌入的 sqlite 数据库
-	// var db, err = gorm.Open(sqlite.Open("db/access/sqlite.db"), &gorm.Config{}) // 使用相对路径的 sqlite 数据库
+	// 使用嵌入的 sqlite 数据库
+	dbFile, err := LiteDB.ReadFile("db.sqlite")
 	if err != nil {
+		log.Fatal("读取 db.sqlite 文件失败")
+	}
+	var db, dbErr = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err := db.Exec(string(dbFile)).Error; err != nil {
+		panic(err)
+	}
+	// 使用相对路径的 sqlite 数据库
+	// var db, dbErr = gorm.Open(sqlite.Open("db/access/db.sqlite"), &gorm.Config{})
+	if dbErr != nil {
 		panic("初始化 Sqlite 数据库恐慌：" + err.Error())
 	}
 	return db

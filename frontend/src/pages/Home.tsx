@@ -15,7 +15,7 @@ export default function HomePage() {
   const [todo, setTodo] = createSignal<todo>(); // 新增待办
   const [addTodo] = createResource(todo, postTodo); // 新增待办
   // 删除
-  const [id, setId] = createSignal<number>(0); // 待删除的 id
+  const [id, setId] = createSignal<number>(); // 待删除的 id
   const [deleteTodo] = createResource(id, deleteTodoById); // 删除待办
 
   // 监听新增待办的变化
