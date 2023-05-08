@@ -1,7 +1,7 @@
 package model
 
 type Todos struct {
-	Id    int    `gorm:"comment:id;type:bigint;primary key autoincrement" json:"id"`
+	Id    int    `gorm:"comment:id;type:int;primary key;autoincrement" json:"id"`
 	Title string `gorm:"comment:标题;type:varchar(64);" json:"title"`
 	Done  bool   `gorm:"comment:完成;type:boolean;default:false" json:"done"`
 }

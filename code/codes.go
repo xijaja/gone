@@ -1,9 +1,7 @@
 package code
 
 import (
-	"encoding/json"
 	"github.com/gofiber/fiber/v2"
-	"gone/db/model"
 )
 
 // 自定义返回格式
@@ -28,28 +26,10 @@ func (co code) Reveal(c *fiber.Ctx, resp fiber.Map) (turn fiber.Map) {
 		msg = "error"
 	}
 	// 构建返回
-	turn = fiber.Map{
+	return fiber.Map{
 		"code": co,   // 返回状态码
 		"msg":  msg,  // 返回消息
 		"rid":  rid,  // 请求ID
 		"data": resp, // 返回数据
 	}
-	// 将 c.Request().Body() 由 []byte 转为 nap[string]interface{}
-	var reqBody map[string]interface{}
-	if err := json.Unmarshal(c.Request().Body(), &reqBody); err != nil {
-		reqBody = map[string]interface{}{"error": err.Error(), "original": string(c.Request().Body())}
-	}
-	// 将请求存入日志库
-	lg := model.Logs{
-		ReqId:  rid,                                    // 请求ID
-		IP:     c.IP(),                                 // 请求 IP
-		Url:    c.Path(),                               // 请求路径
-		Method: c.Method(),                             // 请求方法
-		Params: c.Request().URI().QueryArgs().String(), // 请求参数
-		Header: c.Request().Header.String(),            // 请求头
-		Body:   reqBody,                                // 请求体
-		Resp:   turn,                                   // 响应体
-	}
-	go lg.Create() // 异步入库, 提升性能且不影响主流程
-	return turn    // 返回
 }

@@ -3,7 +3,6 @@ package model
 import (
 	"fmt"
 	"gone/db/access"
-	"gone/start"
 	"gorm.io/gorm"
 	"log"
 	"reflect"
@@ -16,9 +15,9 @@ var db *gorm.DB
 // 初始化数据库
 func init() {
 	// 初始化数据库
-	db = access.NewConnect(start.Config.Database, access.Postgres).DB
+	db = access.NewConnect().DB
 	// 自动迁移，入参如 &Logs{}, &Todos{}
-	err := db.AutoMigrate(sqlTagExecutor(&Logs{}, &Todos{})...)
+	err := db.AutoMigrate(sqlTagExecutor(&Todos{})...)
 	if err != nil {
 		log.Fatal("数据库迁移失败:", err)
 	}
