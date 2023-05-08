@@ -1,4 +1,3 @@
-import { A } from "@solidjs/router";
 import Layout from "../layouts/Layout";
 
 export default function AboutPage() {

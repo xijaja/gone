@@ -5,14 +5,11 @@ import NotFoundPage from "./pages/404";
 export default function AppRouter() {
   return (
     <>
-      <Router>
-        <Routes>
-          <Route path="/" component={HomePage} />
-          <Route path="/about" component={AboutPage} />
-          <Route path="*" component={NotFoundPage} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" component={HomePage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="*" component={NotFoundPage} />
+      </Routes>
     </>
   );
 };
-

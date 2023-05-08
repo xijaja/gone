@@ -4,14 +4,17 @@ const baseUrl = "http://127.0.0.1:3030/api";
 // 请求获取全部待办事项
 export async function getTodos() {
   const response = await fetch(`${baseUrl}/todos/all`);
-  return await response.json();
+  const jsonStr = await response.json();
+  console.log(jsonStr);
+  console.log(jsonStr.data.list);
+  return jsonStr;
 }
 
 // 更新或添加
 export async function postTodo(data: {
   id?: number;
   title: string;
-  done?: number;
+  done?: boolean;
 }) {
   const response = await fetch(`${baseUrl}/todos/one`, {
     method: "POST",

@@ -4,7 +4,7 @@ import { getTodos, postTodo, deleteTodoById } from "../libs/apis";
 type todo = {
   id?: number;
   title: string;
-  done?: number;
+  done?: boolean;
 }
 
 export default function HomePage() {
@@ -52,7 +52,7 @@ export default function HomePage() {
         {todos.error && <div>加载失败</div>}
         <Show when={todos()}>
           <ul class="space-y-2">
-            <For each={todos().data as todo[]}>
+            <For each={todos().data.list as todo[]}>
               {(todo) => (
                 <li class="p-2 border dark:border-gray-600 rounded-lg flex justify-between items-center">
                   <div class="flex items-center gap-4">

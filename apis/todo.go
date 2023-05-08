@@ -2,7 +2,9 @@ package apis
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gone/code"
 	"gone/db/model"
+	"gone/middle"
 )
 
 func todoApi(todos fiber.Router) {
@@ -20,11 +22,9 @@ func getAllTodos(c *fiber.Ctx) error {
 	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
 		data[i], data[j] = data[j], data[i]
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": "2000",
-		"msg":  "AllTodos",
-		"data": data,
-	})
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+		"list": data,
+	}))
 }
 
 // 更新或添加
@@ -32,11 +32,15 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 	// 定义请求参数结构体
 	req := struct {
 		Id    int    `json:"id" form:"id"`
-		Title string `json:"title" form:"title" validate:"required"`
-		Done  int    `json:"done" form:"done"`
+		Title string `json:"title" form:"title"`
+		Done  bool   `json:"done" form:"done"`
 	}{}
 	// 绑定请求参数
 	_ = c.BodyParser(&req)
+	// 验证请求参数
+	if errs := middle.ParameterValidator(req); errs != nil {
+		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(c, fiber.Map{"failed": errs}))
+	}
 	// 更新
 	if req.Id != 0 {
 		var todo model.Todos
@@ -44,11 +48,9 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 		todo.Title = req.Title
 		todo.Done = req.Done
 		todo.UpdateOne(req.Id)
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"code": "2000",
-			"msg":  "更新 todo 成功",
-			"data": "",
-		})
+		return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+			"msg": "更新 todo 成功",
+		}))
 	}
 	// 添加
 	todo := model.Todos{
@@ -56,11 +58,9 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 		Done:  req.Done,
 	}
 	todo.AddOne()
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": "2000",
-		"msg":  "添加 todo 成功",
-		"data": "",
-	})
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+		"msg": "添加 todo 成功",
+	}))
 }
 
 // 删除待办事项
@@ -73,27 +73,21 @@ func deleteTodo(c *fiber.Ctx) error {
 		idInt = idInt*10 + int(v-'0')
 	}
 	if idInt == 0 {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"code": "4000",
-			"msg":  "id 参数有误或为空",
-			"data": "",
-		})
+		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(c, fiber.Map{
+			"msg": "id 参数有误或为空",
+		}))
 	}
 	var todo model.Todos
 	todo.DeleteOne(idInt)
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": "2000",
-		"msg":  "成功删除待办",
-		"data": "",
-	})
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+		"msg": "成功删除待办",
+	}))
 }
 
 // 完成待办事项
 func doneTodo(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"code": "2000",
-		"msg":  "ok",
-		"data": "完成待办事项",
-	})
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+		"msg": "该接口尚未完善",
+	}))
 }

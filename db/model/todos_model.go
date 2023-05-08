@@ -1,16 +1,9 @@
 package model
 
-import (
-	"time"
-)
-
 type Todos struct {
-	Id        int    `gorm:"column:id;primary key autoincrement" json:"id"`
-	Title     string `gorm:"column:title" json:"title"`
-	Done      int    `gorm:"column:done;type:int(1);default:0" json:"done"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
+	Id    int    `gorm:"comment:id;type:bigint;primary key autoincrement" json:"id"`
+	Title string `gorm:"comment:标题;type:varchar(64);" json:"title"`
+	Done  bool   `gorm:"comment:完成;type:boolean;default:false" json:"done"`
 }
 
 // TableName 重命名表名
