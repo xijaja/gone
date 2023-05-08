@@ -1,12 +1,10 @@
 package access
 
 import (
-	"embed"
 	"fmt"
 	"gone/start"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
@@ -14,15 +12,11 @@ import (
 	"time"
 )
 
-//go:embed db.sqlite
-var LiteDB embed.FS
-
 // 数据库类型
 type dbType string
 
 // 数据库类型常量
 const (
-	Sqlite   = dbType("sqlite")
 	Postgres = dbType("postgres")
 	Mysql    = dbType("mysql")
 )
@@ -37,8 +31,6 @@ type Connect struct {
 func NewConnect(conf start.Database, dbType dbType) *Connect {
 	var DB *gorm.DB
 	switch dbType {
-	case Sqlite:
-		DB = initSqlite()
 	case Postgres:
 		DB = initPostgresSQL(conf)
 	case Mysql:
@@ -50,25 +42,6 @@ func NewConnect(conf start.Database, dbType dbType) *Connect {
 		DB:   DB,
 		conf: conf,
 	}
-}
-
-// 初始化 Sqlite 数据库
-func initSqlite() *gorm.DB {
-	// 使用嵌入的 sqlite 数据库
-	dbFile, err := LiteDB.ReadFile("db.sqlite")
-	if err != nil {
-		log.Fatal("读取 db.sqlite 文件失败")
-	}
-	var db, dbErr = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
-	if err := db.Exec(string(dbFile)).Error; err != nil {
-		panic(err)
-	}
-	// 使用相对路径的 sqlite 数据库
-	// var db, dbErr = gorm.Open(sqlite.Open("db/access/db.sqlite"), &gorm.Config{})
-	if dbErr != nil {
-		panic("初始化 Sqlite 数据库恐慌：" + err.Error())
-	}
-	return db
 }
 
 // 初始化 PostgresSQL 数据库
