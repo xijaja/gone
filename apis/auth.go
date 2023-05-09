@@ -31,6 +31,7 @@ func login(c *fiber.Ctx) error {
 		})
 	}
 	// todo：先将上次的 jwt 作废，再生成新的 jwt，查询数据库，如果有记录则将旧的 token 作废
+	// todo：注意啊：在别的需要验证 jwt 的地方，需要先确定 token 作废状态，以免自欺欺人（建议在 middle.Auth() 中间件中设置 SuccessHandler 验证通过后的逻辑）
 	// 生成新的 jwt
 	token := jwt.New(jwt.SigningMethodHS256)                       // 指定签名方法
 	claims := token.Claims.(jwt.MapClaims)                         // 获取载荷，类型为 map[string]interface{}
