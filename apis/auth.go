@@ -30,7 +30,8 @@ func login(c *fiber.Ctx) error {
 			"status": "error", "message": "用户名或密码错误", "data": nil,
 		})
 	}
-	// 生成 jwt
+	// todo：先将上次的 jwt 作废，再生成新的 jwt，查询数据库，如果有记录则将旧的 token 作废
+	// 生成新的 jwt
 	token := jwt.New(jwt.SigningMethodHS256)                       // 指定签名方法
 	claims := token.Claims.(jwt.MapClaims)                         // 获取载荷，类型为 map[string]interface{}
 	claims["username"] = req.Username                              // 存入用户名 todo: 存入用户其他信息，如权限、角色等
@@ -40,6 +41,8 @@ func login(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "JWT 生成失败", "data": nil})
 	}
+	// todo：将 jwt 存入数据库（登录记录表），用于作废：jwt、user_id、status
+	// todo：另外，还需定时清理过期的 jwt 记录
 	// 构建返回
 	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{"token": tokenValue}))
 }
@@ -48,6 +51,7 @@ func login(c *fiber.Ctx) error {
 func postSth(c *fiber.Ctx) error {
 	// 从上下文 jwk 中获取 jwt
 	user := c.Locals("user").(*jwt.Token) // 获取 jwt, user 是 jwt 的默认载荷名称
+	// 构建返回
 	return c.Status(fiber.StatusOK).JSON(
 		code.Ok.Reveal(fiber.Map{
 			"username": user.Claims.(jwt.MapClaims)["username"], // 获取载荷中的 username

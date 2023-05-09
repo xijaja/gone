@@ -3,6 +3,7 @@ package start
 import (
 	"flag"
 	"fmt"
+	"gone/auto"
 	"gone/utils"
 )
 
@@ -36,5 +37,10 @@ func init() {
 	// 执行编译前端的命令
 	if *B {
 		utils.RunCmd(fmt.Sprintf("cd ./frontend && %s run build", Config.PkgManager))
+	}
+
+	// 启动定时任务
+	if *T {
+		go auto.ScheduledTasks()
 	}
 }
