@@ -1,4 +1,4 @@
-package middle
+package code
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ type ErrorResponse struct {
 	ErrorMsg string `json:"error_msg"` // 错误信息
 }
 
-// ParameterValidator 参数验证器
-func ParameterValidator(st interface{}) []*ErrorResponse {
+// Validator 参数验证器
+func Validator(st interface{}) []*ErrorResponse {
 	var validate = validator.New()
 	var errors []*ErrorResponse
 	err := validate.Struct(st)

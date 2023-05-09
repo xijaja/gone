@@ -18,9 +18,9 @@ func login(c *fiber.Ctx) error {
 	}{}
 	// 绑定请求参数
 	_ = c.BodyParser(&req)
-	errs := middle.ParameterValidator(req) // 验证请求参数
+	errs := code.Validator(req) // 验证请求参数
 	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(code.Bad.Reveal(c, fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(code.Bad.Reveal(fiber.Map{
 			"failed": errs,
 		}))
 	}
@@ -41,7 +41,7 @@ func login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "JWT 生成失败", "data": nil})
 	}
 	// 构建返回
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{"token": tokenValue}))
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{"token": tokenValue}))
 }
 
 // 做点什么
@@ -49,7 +49,7 @@ func postSth(c *fiber.Ctx) error {
 	// 从上下文 jwk 中获取 jwt
 	user := c.Locals("user").(*jwt.Token) // 获取 jwt, user 是 jwt 的默认载荷名称
 	return c.Status(fiber.StatusOK).JSON(
-		code.Ok.Reveal(c, fiber.Map{
+		code.Ok.Reveal(fiber.Map{
 			"username": user.Claims.(jwt.MapClaims)["username"], // 获取载荷中的 username
 			"password": user.Claims.(jwt.MapClaims)["password"], // 获取载荷中的 password
 		}),

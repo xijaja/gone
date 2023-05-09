@@ -9,7 +9,7 @@ import (
 func CorsShare(app *fiber.App) {
 	// app.Use(cors.New()) // 默认配置
 	app.Use(cors.New(cors.Config{
-		// AllowOrigins: "http://localhost:3000,http://localhost:5173",
+		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 }

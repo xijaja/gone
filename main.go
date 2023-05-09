@@ -19,7 +19,6 @@ func main() {
 	// 注册路由组和中间件
 	middle.CorsShare(app)      // 启用跨域资源共享，这个目的是为了方便调试
 	middle.Logs(app)           // 日志中间件，先于其他中间件，防止遗漏日志
-	middle.ReqId(app)          // 请求 ID 中间件，追踪请求，必须先于 api 注册
 	apis.Api(app.Group("api")) // 注册路由组，先于静态页面，否则其将覆盖 api
 	middle.Pages(app)          // 静态文件，将静态文件打包
 

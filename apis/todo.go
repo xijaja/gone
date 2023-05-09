@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gone/code"
 	"gone/db/model"
-	"gone/middle"
 )
 
 func todoApi(todos fiber.Router) {
@@ -22,7 +21,7 @@ func getAllTodos(c *fiber.Ctx) error {
 	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
 		data[i], data[j] = data[j], data[i]
 	}
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"list": data,
 	}))
 }
@@ -38,8 +37,8 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 	// 绑定请求参数
 	_ = c.BodyParser(&req)
 	// 验证请求参数
-	if errs := middle.ParameterValidator(req); errs != nil {
-		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(c, fiber.Map{"failed": errs}))
+	if errs := code.Validator(req); errs != nil {
+		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(fiber.Map{"failed": errs}))
 	}
 	// 更新
 	if req.Id != 0 {
@@ -48,7 +47,7 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 		todo.Title = req.Title
 		todo.Done = req.Done
 		todo.UpdateOne(req.Id)
-		return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 			"msg": "更新 todo 成功",
 		}))
 	}
@@ -58,7 +57,7 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 		Done:  req.Done,
 	}
 	todo.AddOne()
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"msg": "添加 todo 成功",
 	}))
 }
@@ -73,21 +72,21 @@ func deleteTodo(c *fiber.Ctx) error {
 		idInt = idInt*10 + int(v-'0')
 	}
 	if idInt == 0 {
-		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(c, fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(fiber.Map{
 			"msg": "id 参数有误或为空",
 		}))
 	}
 	var todo model.Todos
 	todo.DeleteOne(idInt)
 
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"msg": "成功删除待办",
 	}))
 }
 
 // 完成待办事项
 func doneTodo(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"msg": "该接口尚未完善",
 	}))
 }
