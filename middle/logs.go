@@ -17,13 +17,14 @@ func Logs(app *fiber.App) {
 	// }))
 	// /assets 开头的 GET 请求，不会被记录
 	app.Use(func(c *fiber.Ctx) error {
-		if c.Method() == http.MethodGet && len(c.Path()) >= 7 && c.Path()[0:7] == "/assets" {
-			return c.Next() // 忽略，将不打印日志
-		} else {
-			return logger.New(logger.Config{
-				TimeFormat: "2006-01-02 15:04:05", // 时间格式
-			})(c) // 打印日志
+		if c.Method() == http.MethodGet && len(c.Path()) >= 7 {
+			if c.Path()[0:7] == "/assets" || c.Path()[0:11] == "/src/assets" || c.Path()[0:8] == "/favicon" {
+				return c.Next() // 忽略，将不打印日志
+			}
 		}
+		return logger.New(logger.Config{
+			TimeFormat: "2006-01-02 15:04:05", // 时间格式
+		})(c) // 打印日志
 	})
 
 	// ReqId 生成 request_id 默认使用 uuid
@@ -75,11 +76,20 @@ func Logs(app *fiber.App) {
 			}
 		}
 
+		// 请求路径
+		pathUrl := c.Path()
+		// 如果 pathUrl 以 /assets 或 /src/assets 或 /favicon 开头，则不记录日志
+		if len(pathUrl) >= 7 {
+			if pathUrl[0:7] == "/assets" || pathUrl[0:11] == "/src/assets" || pathUrl[0:8] == "/favicon" {
+				return err
+			}
+		}
+
 		// 将请求存入日志库
 		lg := model.Logs{
 			ReqId:    rid,                                    // 请求ID
 			IP:       c.IP(),                                 // 请求 IP
-			Url:      c.Path(),                               // 请求路径
+			Url:      pathUrl,                                // 请求路径
 			Method:   c.Method(),                             // 请求方法
 			Status:   c.Response().StatusCode(),              // 请求状态码
 			Duration: duration,                               // 请求耗时
