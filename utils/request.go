@@ -17,7 +17,7 @@ type ImReady struct {
 }
 
 // Ready 请求入口，在这里准备数据
-// 返回值是 *Parameter 类型，可以链式调用
+// 返回值是 *ImReady 类型，可以链式调用
 func Ready(url, mod string, can map[string]any) *ImReady {
 	return &ImReady{
 		Url:   url, // 请求地址
