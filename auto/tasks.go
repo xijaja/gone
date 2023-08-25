@@ -45,7 +45,7 @@ func ScheduledTasks() {
 
 // 每日一言
 func robotDayOne() {
-	fmt.Println("每日一言") // 打印
+	fmt.Println("当了个当～")
 }
 
 // todo：定时清理过期的 jwt 任务

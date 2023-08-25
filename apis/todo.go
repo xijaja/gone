@@ -6,28 +6,20 @@ import (
 	"gone/db/model"
 )
 
-func todoApi(todos fiber.Router) {
-	todos.Get("/all", getAllTodos)      // 获取全部 todos
-	todos.Post("/one", updateOrAddTodo) // 更新或添加
-	todos.Delete("/:id", deleteTodo)    // 删除待办事项
-	todos.Post("/done", doneTodo)       // 完成待办事项
-}
+// 待办事项管理
+type todo struct{}
 
 // 获取全部 todos
-func getAllTodos(c *fiber.Ctx) error {
+func (t *todo) getAllTodos(c *fiber.Ctx) error {
 	var todos model.Todos
 	var data = todos.FindAll()
-	// 将 data 颠倒
-	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
-		data[i], data[j] = data[j], data[i]
-	}
 	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"list": data,
 	}))
 }
 
 // 更新或添加
-func updateOrAddTodo(c *fiber.Ctx) error {
+func (t *todo) updateOrAddTodo(c *fiber.Ctx) error {
 	// 定义请求参数结构体
 	req := struct {
 		Id    int    `json:"id" form:"id"`
@@ -63,7 +55,7 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 }
 
 // 删除待办事项
-func deleteTodo(c *fiber.Ctx) error {
+func (t *todo) deleteTodo(c *fiber.Ctx) error {
 	// 获取路由参数
 	idStr := c.Params("id")
 	// 将字符串转换为 int
@@ -85,7 +77,7 @@ func deleteTodo(c *fiber.Ctx) error {
 }
 
 // 完成待办事项
-func doneTodo(c *fiber.Ctx) error {
+func (t *todo) doneTodo(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
 		"msg": "该接口尚未完善",
 	}))
