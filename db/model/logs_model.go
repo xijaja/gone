@@ -1,9 +1,5 @@
 package model
 
-import (
-	"time"
-)
-
 // Logs 日志表
 type Logs struct {
 	ReqId     string         `gorm:"comment:请求id;type:uuid;primary_key;<-:create" json:"req_id"`
@@ -16,7 +12,7 @@ type Logs struct {
 	Header    string         `gorm:"comment:请求的header;type:varchar(1024);<-:create" json:"header"`
 	Body      map[string]any `gorm:"comment:请求的body;type:json;<-:create" json:"body"`
 	Resp      map[string]any `gorm:"comment:响应的body;type:json;<-:create" json:"resp"`
-	CreatedAt time.Time      `gorm:"comment:创建时间;type:timestamp(0);NOT NULL;<-:create;" json:"created_at"`
+	CreatedAt *LocalTime     `gorm:"comment:创建时间; type:timestamp(0);autoCreateTime;" json:"created_at"`
 }
 
 // Create 创建一条日志信息
