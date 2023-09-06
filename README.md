@@ -4,9 +4,9 @@ Gone 远走高飞，前后端一次性部署，一个文件搞定。
 
 ## 介绍
 
-本项目共有两个分支，`main` 分支和 `with-sqlite` 分支，两者仅在使用的数据库上有所不同。
+本项目共有两个分支，`main` 分支和 `with-sqlite` 分支，两者在使用的数据库上有所不同。
 
-两者均使用 embed 包，将前端打包后的文件嵌入到二进制文件中，最终部署时仅需部署该二进制文件。
+两者均使用 embed 包，将前端打包后的文件嵌入到二进制文件中，最终部署时仅需部署该二进制文件。 `with-sqlite` 分支还将 sqlite 数据库嵌入。
 
 如果使用 Postgres/MySQL/Mongo/Redis 等数据库在服务器上使用 docker 启动即可。
 
@@ -65,31 +65,24 @@ Gone 远走高飞，前后端一次性部署，一个文件搞定。
 
 ```
 # 1.克隆项目
-
 git clone https://github.com/xijaja/gone.git
 
 # 2.进入项目
-
 cd gone
 
 # 3.编译前端（npm / yarn / pnpm）
-
 cd frontend && pnpm install && pnpm run build
 
 # 4.启动后端
-
 cd .. && go run main.go
 
 # 5.构建可执行文件
-
 go build -o app main.go
 
 # 不过，要记得编译前端
-
 cd frontend && pnpm build && cd .. && go build -o app main.go
 
 # 另外，构建不同的平台需要交叉编译
-
 GOOS=linux GOARCH=amd64 go build -o app main.go        # linux
 GOOS=darwin GOARCH=arm64 go build -o app main.go       # mac m1
 GOOS=darwin GOARCH=amd64 go build -o app main.go       # mac intel
