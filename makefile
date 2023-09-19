@@ -27,7 +27,7 @@ b-mac-amd-sqlite:
 b-win-sqlite:
 	GOOS=windows GOARCH=amd64 go build -o app.exe -tags 'sqlite' main.go
 
-# 使用 docker 启动数据库
+# 使用 docker 启动 postgres 数据库
 pg:
 	docker run -itd \
 	--name pg \
@@ -39,11 +39,12 @@ pg:
 	-e TZ=PRC \
 	postgres
 
+# 使用 docker 启动 redis 数据库（注：密码要写在最后）
 rs:
 	docker run -itd \
+	-v $PWD/redis:/data \
 	--name rs \
 	-p 6379:6379 \
-	-v redis:/data \
-	--requirepass gG4lD1oL0gB6gA1a \
-	redis
-
+	--restart always \
+	redis \
+	--requirepass redispassword

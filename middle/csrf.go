@@ -5,14 +5,15 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/utils"
+	"gone/start"
 	"time"
 )
 
 func CsrfEncrypt(app *fiber.App) {
 	// 使用 encryptcookie 加密 cookie，用以防止 cookie 被篡改
 	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key:    "secret-thirty-2-character-string", // 32 字符的密钥
-		Except: []string{"csrf-token"},             // 从加密中排除CSRF Cookie
+		Key:    start.Config.CsrfSecret, // 32 字符的密钥
+		Except: []string{"csrf-token"},  // 从加密中排除CSRF Cookie
 	}))
 
 	// 使用 csrf 中间件，用以防止跨站请求伪造

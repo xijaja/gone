@@ -7,11 +7,13 @@ import (
 
 // Api 路由组，访问以下所有路由都需加上 /api
 func Api(api fiber.Router) {
-	api.Get("/", hello)   // 保留的路由，用以验活
-	api.Get("/hi", hello) // 保留的路由，用以验活
+	api.Get("/", hello) // 保留的路由，用以验活
 
-	api.Post("/login", login)                // 登录 fixme: 仅作演示
-	api.Post("/sth", middle.Auth(), postSth) // 带有权限验证 fixme: 仅作演示
+	apiV1 := api.Group("/v1", middle.Auth()) // api/v1 路由组
+
+	var u *user                        // 用户管理
+	apiV1.Post("/user/login", u.login) // 登录
+	apiV1.Post("/user/sth", u.postSth) // 仅作演示
 
 	var t *todo                           // 待办事项管理
 	todos := api.Group("todos")           // api/todos 路由组

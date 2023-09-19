@@ -2,7 +2,9 @@ package access
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gomodule/redigo/redis"
+	"gone/start"
 )
 
 var RedisPool *redis.Pool // 创建redis连接池
@@ -25,18 +27,19 @@ func redisPool() *redis.Pool {
 // 连接初始化
 func dialInit() (redis.Conn, error) {
 	// 连接 redis 服务器
-	c, err := redis.Dial("tcp", "conf.Cfg.Env.Redis.Addr")
+	address := fmt.Sprintf("%s:%s", start.Config.Redis.Host, start.Config.Redis.Port)
+	c, err := redis.Dial("tcp", address)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err.Error())
 	}
 	// 传入密码
-	if _, err2 := c.Do("AUTH", "conf.Cfg.Env.Redis.Auth"); err2 != nil {
-		fmt.Println(err2)
+	if _, err2 := c.Do("AUTH", start.Config.Redis.Pass); err2 != nil {
+		log.Error(err2.Error())
 	}
 	// 选择数据库
 	_, err3 := c.Do("SELECT", 0)
 	if err3 != nil {
-		fmt.Println("Select redis error", err3)
+		log.Error("Redis 恐慌：", err3.Error())
 	}
 	return c, nil
 }

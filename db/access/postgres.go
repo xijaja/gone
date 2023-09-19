@@ -2,7 +2,6 @@ package access
 
 import (
 	"fmt"
-	"gone/start"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -12,10 +11,10 @@ import (
 )
 
 // InitPostgresSQL 初始化 PostgresSQL 数据库
-func InitPostgresSQL(pg start.Database) *gorm.DB {
+func InitPostgresSQL(host, user, port, pass, base string) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		pg.Host, pg.User, pg.Pass, pg.Base, pg.Port,
+		host, user, pass, base, port,
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		// DisableForeignKeyConstraintWhenMigrating: true,      // 禁用创建外键约束

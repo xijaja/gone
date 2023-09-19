@@ -12,17 +12,22 @@ import (
 // 全局变量
 // ---------------------------------------------
 type projectConfig struct {
-	PkgManager string   `validate:"oneof='pnpm' 'cnpm' 'npm' 'yarn'"` // 前端的包管理器
-	Database   Database // 数据库配置
-}
-
-// Database 数据库配置
-type Database struct {
-	Host string `validate:"required,ip"` // IP地址
-	User string `validate:"required"`    // 用户
-	Port string `validate:"required"`    // 端口
-	Pass string `validate:"required"`    // 密码
-	Base string `validate:"required"`    // 库名
+	PkgManager string `validate:"oneof='pnpm' 'cnpm' 'npm' 'yarn'"` // 前端的包管理器
+	Postgres   struct {
+		Host string `validate:"required,ip"` // IP地址
+		User string `validate:"required"`    // 用户
+		Port string `validate:"required"`    // 端口
+		Pass string `validate:"required"`    // 密码
+		Base string `validate:"required"`    // 库名
+	} // 数据库配置
+	Redis struct {
+		Host string `validate:"required,ip"` // IP地址
+		Port string `validate:"required"`    // 端口
+		Pass string `validate:"required"`    // 密码
+		Base string `validate:"required"`    // 库名
+	} // Redis 配置
+	JwtSecret  string `validate:"required"` // JWT 密钥
+	CsrfSecret string `validate:"required"` // CSRF 密钥
 }
 
 // 读取配置文件
@@ -38,12 +43,20 @@ func (mc *projectConfig) getMyConfig(isProd bool) projectConfig {
 	}
 	// 前端包管理器
 	mc.PkgManager = os.Getenv("PKG_MANAGER")
-	// 读取配置信息
-	mc.Database.Host = os.Getenv("DB_HOST")
-	mc.Database.User = os.Getenv("DB_USER")
-	mc.Database.Port = os.Getenv("DB_PORT")
-	mc.Database.Pass = os.Getenv("DB_PASS")
-	mc.Database.Base = os.Getenv("DB_BASE")
+	// Postgres 数据库配置
+	mc.Postgres.Host = os.Getenv("PG_HOST")
+	mc.Postgres.User = os.Getenv("PG_USER")
+	mc.Postgres.Port = os.Getenv("PG_PORT")
+	mc.Postgres.Pass = os.Getenv("PG_PASS")
+	mc.Postgres.Base = os.Getenv("PG_BASE")
+	// Redis 数据库配置
+	mc.Redis.Host = os.Getenv("REDIS_HOST")
+	mc.Redis.Port = os.Getenv("REDIS_PORT")
+	mc.Redis.Pass = os.Getenv("REDIS_PASS")
+	mc.Redis.Base = os.Getenv("REDIS_BASE")
+	// 加密和密钥
+	mc.JwtSecret = os.Getenv("JWT_SECRET")
+	mc.CsrfSecret = os.Getenv("CSRF_SECRET")
 	// 验证配置是否正确
 	validate := validator.New()
 	if err := validate.Struct(mc); err != nil {
