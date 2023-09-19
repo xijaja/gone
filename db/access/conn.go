@@ -3,9 +3,8 @@ package access
 import (
 	"embed"
 	"github.com/glebarez/sqlite"
-	"log"
-	// "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
 )
 
 //go:embed db.sqlite
