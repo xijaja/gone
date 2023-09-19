@@ -2,9 +2,10 @@ package access
 
 import (
 	"embed"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/glebarez/sqlite"
 	"log"
+	// "gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 //go:embed db.sqlite
@@ -29,7 +30,8 @@ func initSqlite() *gorm.DB {
 	if err != nil {
 		log.Fatal("读取 db.sqlite 文件失败")
 	}
-	var db, dbErr = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	var db *gorm.DB
+	db, dbErr := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err := db.Exec(string(dbFile)).Error; err != nil {
 		panic("链接 Sqlite 数据库恐慌：" + err.Error())
 	}
