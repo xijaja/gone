@@ -16,6 +16,8 @@ makefile
 # Others
 *.md
 *.http
+http
+tmp
 
 # 忽略前端代码
 frontend
