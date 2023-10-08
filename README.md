@@ -84,7 +84,9 @@ cd frontend && pnpm build && cd .. && go build -o app main.go
 
 # 另外，构建不同的平台需要交叉编译
 GOOS=linux GOARCH=amd64 go build -o app main.go        # linux
-GOOS=darwin GOARCH=arm64 go build -o app main.go       # mac m1
+GOOS=linux GOARCH=arm64 go build -o app main.go        # linux arm
+GOOS=darwin GOARCH=arm64 go build -o app main.go       # mac apple silicon
 GOOS=darwin GOARCH=amd64 go build -o app main.go       # mac intel
 GOOS=windows GOARCH=amd64 go build -o app.exe main.go  # windows
+GOOS=windows GOARCH=arm64 go build -o app.exe main.go  # windows arm
 ```
