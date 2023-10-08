@@ -16,7 +16,7 @@ func Api(api fiber.Router) {
 	apiV1.Post("/user/sth", u.postSth) // 仅作演示
 
 	var t *todo                           // 待办事项管理
-	todos := api.Group("todos")           // api/todos 路由组
+	todos := api.Group("/todos")          // api/todos 路由组
 	todos.Get("/all", t.getAllTodos)      // api/todos/all 获取全部 todos
 	todos.Post("/one", t.updateOrAddTodo) // api/todos/one 更新或添加
 	todos.Delete("/:id", t.deleteTodo)    // api/todos/:id 删除待办事项

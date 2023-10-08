@@ -15,7 +15,7 @@ const (
 )
 
 // Reveal 流露：按特定格式返回数据并将请求信息存入数据库
-func (co code) Reveal(resp fiber.Map) (turn fiber.Map) {
+func (co code) Reveal(resp fiber.Map) fiber.Map {
 	msg := "success"
 	// 如果有 msg 信息则将 resp 中的 msg 移到上层，否则返回默认值
 	if resp["msg"] != nil {

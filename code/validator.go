@@ -80,6 +80,8 @@ func validatorErrorMsgMaker(field, tag, value string) string {
 		return fmt.Sprintf("字段 %s，必须是文件夹", field)
 	case "number":
 		return fmt.Sprintf("字段 %s，必须为数字格式", field)
+	case "boolean":
+		return fmt.Sprintf("字段 %s，必须为布尔值格式", field)
 	case "json":
 		return fmt.Sprintf("字段 %s，必须为 JSON 格式", field)
 	case "uuid":
