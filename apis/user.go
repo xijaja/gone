@@ -45,7 +45,7 @@ func (u *user) login(c *fiber.Ctx) error {
 	// 生成新的 jwt
 	tokenValue, err := middle.NewJWT(req.Username, string(user.Role), 3) // 生成签名字符串
 	if err != nil {
-		return c.JSON(code.Bad.Reveal(fiber.Map{"msg": "生成 Token 失败"}))
+		return c.JSON(code.Err.Reveal(fiber.Map{"msg": "生成 Token 失败"}))
 	}
 	// 构建返回
 	return c.JSON(code.Oka.Reveal(fiber.Map{"msg": "登录成功", "token": tokenValue}))
