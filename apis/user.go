@@ -7,10 +7,9 @@ import (
 	"gone/code"
 	"gone/db/dao"
 	"gone/db/model"
-	"gone/start"
+	"gone/middle"
 	"gone/utils"
 	"gorm.io/gorm"
-	"time"
 )
 
 // user 用户管理
@@ -44,17 +43,12 @@ func (u *user) login(c *fiber.Ctx) error {
 	}
 
 	// 生成新的 jwt
-	token := jwt.New(jwt.SigningMethodHS256)                              // 指定签名方法
-	claims := token.Claims.(jwt.MapClaims)                                // 获取载荷，类型为 map[string]interface{}
-	claims["username"] = req.Username                                     // 存入用户名
-	claims["role"] = user.Role                                            // 存入用户角色权限
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()                 // 设置过期时间 3 天
-	tokenValue, err := token.SignedString([]byte(start.Config.JwtSecret)) // 生成签名字符串
+	tokenValue, err := middle.NewJWT(req.Username, string(user.Role), 3) // 生成签名字符串
 	if err != nil {
 		return c.JSON(code.Bad.Reveal(fiber.Map{"msg": "生成 Token 失败"}))
 	}
 	// 构建返回
-	return c.JSON(code.Ok.Reveal(fiber.Map{"msg": "登录成功", "token": tokenValue}))
+	return c.JSON(code.Oka.Reveal(fiber.Map{"msg": "登录成功", "token": tokenValue}))
 }
 
 // Logout 登出
@@ -64,7 +58,7 @@ func (u *user) Logout(c *fiber.Ctx) error {
 	// 将 token 作废，保存到 redis 标记为无效
 	rds := dao.NewRedis(token)         // 将 token 作为 redis 的 key，此处 key-value 同值
 	rds.SetRedisKey(token, 60*60*24*3) // 3 天后过期删除，覆盖原有的过期时间（可以通过计算设置为剩余时间，但没必要）
-	return c.JSON(code.Ok.Reveal(fiber.Map{"msg": "登出成功"}))
+	return c.JSON(code.Oka.Reveal(fiber.Map{"msg": "登出成功"}))
 }
 
 // 做点什么
@@ -73,7 +67,7 @@ func (u *user) postSth(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token) // 获取 jwt, user 是 jwt 的默认载荷名称
 	// 构建返回
 	return c.Status(fiber.StatusOK).JSON(
-		code.Ok.Reveal(fiber.Map{
+		code.Oka.Reveal(fiber.Map{
 			"username":       user.Claims.(jwt.MapClaims)["username"], // 获取载荷中的 username
 			"role":           user.Claims.(jwt.MapClaims)["role"],     // 获取载荷中的 role
 			"json_web_token": user.Raw,                                // 获取载荷中的 json_web_token

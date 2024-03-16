@@ -13,7 +13,7 @@ type todo struct{}
 func (t *todo) getAllTodos(c *fiber.Ctx) error {
 	var todos model.Todos
 	var data = todos.FindAll()
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
 		"list": data,
 	}))
 }
@@ -39,7 +39,7 @@ func (t *todo) updateOrAddTodo(c *fiber.Ctx) error {
 		todo.Title = req.Title
 		todo.Done = req.Done
 		todo.UpdateOne(req.Id)
-		return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
+		return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
 			"msg": "更新 todo 成功",
 		}))
 	}
@@ -49,7 +49,7 @@ func (t *todo) updateOrAddTodo(c *fiber.Ctx) error {
 		Done:  req.Done,
 	}
 	todo.AddOne()
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
 		"msg": "添加 todo 成功",
 	}))
 }
@@ -71,14 +71,14 @@ func (t *todo) deleteTodo(c *fiber.Ctx) error {
 	var todo model.Todos
 	todo.DeleteOne(idInt)
 
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
 		"msg": "成功删除待办",
 	}))
 }
 
 // 完成待办事项
 func (t *todo) doneTodo(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
 		"msg": "该接口尚未完善",
 	}))
 }

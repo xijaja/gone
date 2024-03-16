@@ -9,7 +9,8 @@ type code uint
 
 // 全局 code 码
 const (
-	Ok  = code(2000) // 请求成功
+	Oka = code(2000) // 请求成功
+	Red = code(3000) // 登录过期
 	Bad = code(4000) // 请求错误
 	Err = code(5000) // 系统异常
 )
