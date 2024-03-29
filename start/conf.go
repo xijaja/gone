@@ -12,8 +12,7 @@ import (
 // 全局变量
 // ---------------------------------------------
 type projectConfig struct {
-	PkgManager string `validate:"oneof='pnpm' 'cnpm' 'npm' 'yarn'"` // 前端的包管理器
-	Postgres   struct {
+	Postgres struct {
 		Host string `validate:"required,ip"` // IP地址
 		User string `validate:"required"`    // 用户
 		Port string `validate:"required"`    // 端口
@@ -41,8 +40,6 @@ func (mc *projectConfig) getMyConfig(isProd bool) projectConfig {
 			log.Fatal("开发环境加载 .env.dev 文件时出错")
 		}
 	}
-	// 前端包管理器
-	mc.PkgManager = os.Getenv("PKG_MANAGER")
 	// Postgres 数据库配置
 	mc.Postgres.Host = os.Getenv("PG_HOST")
 	mc.Postgres.User = os.Getenv("PG_USER")
