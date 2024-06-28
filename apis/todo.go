@@ -18,10 +18,6 @@ func todoApi(todos fiber.Router) {
 func getAllTodos(c *fiber.Ctx) error {
 	var todos model.Todos
 	var data = todos.FindAll()
-	// 将 data 颠倒
-	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
-		data[i], data[j] = data[j], data[i]
-	}
 	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
 		"list": data,
 	}))
@@ -46,7 +42,7 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 		var todo model.Todos
 		todo.FindOne(req.Id)
 		todo.Title = req.Title
-		todo.Done = req.Done
+		todo.Done = &req.Done
 		todo.UpdateOne(req.Id)
 		return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{
 			"msg": "更新 todo 成功",
@@ -55,7 +51,7 @@ func updateOrAddTodo(c *fiber.Ctx) error {
 	// 添加
 	todo := model.Todos{
 		Title: req.Title,
-		Done:  req.Done,
+		Done:  &req.Done,
 	}
 	todo.AddOne()
 	return c.Status(fiber.StatusOK).JSON(code.Ok.Reveal(c, fiber.Map{

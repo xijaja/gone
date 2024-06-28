@@ -3,7 +3,7 @@ package model
 type Todos struct {
 	Id    int    `gorm:"comment:id;type:int;primary key;autoincrement" json:"id"`
 	Title string `gorm:"comment:标题;type:varchar(64);" json:"title"`
-	Done  bool   `gorm:"comment:完成;type:boolean;default:false" json:"done"`
+	Done  *bool  `gorm:"comment:完成;type:boolean;default:false" json:"done"`
 }
 
 // TableName 重命名表名
@@ -25,7 +25,7 @@ func (t *Todos) FindOne(id int) *Todos {
 
 // FindAll 查询所有数据
 func (t *Todos) FindAll() (todos []Todos) {
-	db.Find(&todos)
+	db.Order("id desc").Find(&todos)
 	return todos
 }
 
