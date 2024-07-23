@@ -7,13 +7,6 @@ import (
 	"gone/middle"
 )
 
-func todoApi(todos fiber.Router) {
-	todos.Get("/all", getAllTodos)      // 获取全部 todos
-	todos.Post("/one", updateOrAddTodo) // 更新或添加
-	todos.Delete("/:id", deleteTodo)    // 删除待办事项
-	todos.Post("/done", doneTodo)       // 完成待办事项
-}
-
 // 获取全部 todos
 func getAllTodos(c *fiber.Ctx) error {
 	var todos model.Todos
