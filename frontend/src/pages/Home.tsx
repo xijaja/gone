@@ -1,5 +1,5 @@
 import Layout from "../layouts/Layout";
-import { getTodos, postTodo, deleteTodoById } from "../libs/apis";
+import { apiPath, callApi } from "../libs/apis";
 
 type todo = {
   id?: number;
@@ -7,9 +7,24 @@ type todo = {
   done?: boolean;
 }
 
+// 获取全部待办事项
+async function getTodos() {
+  return await callApi(apiPath.getAllTodos);
+}
+
+// 新增待办事项
+async function postTodo(data: todo) {
+  return await callApi.post(apiPath.postOneTodo, data);
+}
+
+// 删除待办事项
+async function deleteTodoById(id: number) {
+  return await callApi.delete(apiPath.deleteTodoById + id);
+}
+
 export default function HomePage() {
   // 获取
-  const [todos, { refetch }] = createResource(getTodos); // 获取全部待办
+  const [todos, {refetch}] = createResource(getTodos); // 获取全部待办
   // 新增
   const [title, setTitle] = createSignal<string>(""); // 输入框的值
   const [todo, setTodo] = createSignal<todo>(); // 新增待办
@@ -32,40 +47,40 @@ export default function HomePage() {
   })
 
   return (
-    <Layout>
-      <div class="flex gap-4 justify-center">
-        <input
-          type="text"
-          required // 必填项
-          placeholder="还有什么事是待办的呢？"
-          class="input input-bordered w-full max-w-xs"
-          onChange={(e) => setTitle(e.currentTarget.value)}
-        // onInput={(e) => setTitle(e.currentTarget.value)}
-        />
-        <button class="btn" onclick={() => setTodo({ title: title() })}>
-          添加事项
-        </button>
-      </div>
+      <Layout>
+        <div class="flex gap-4 justify-center">
+          <input
+              type="text"
+              required // 必填项
+              placeholder="还有什么事是待办的呢？"
+              class="input input-bordered w-full max-w-xs"
+              onChange={(e) => setTitle(e.currentTarget.value)}
+              // onInput={(e) => setTitle(e.currentTarget.value)}
+          />
+          <button class="btn" onclick={() => setTodo({title: title()})}>
+            添加事项
+          </button>
+        </div>
 
-      <div class="mx-2 my-8 p-2">
-        {todos.loading && <div>加载中...</div>}
-        {todos.error && <div>加载失败</div>}
-        <Show when={todos()}>
-          <ul class="space-y-2">
-            <For each={todos().data.list as todo[]}>
-              {(todo) => (
-                <li class="p-2 border dark:border-gray-600 rounded-lg flex justify-between items-center">
-                  <div class="flex items-center gap-4">
-                    <span class="badge badge-lg">{todo.id}</span>
-                    <span>{todo.title}</span>
-                  </div>
-                  <button class="btn btn-sm" onclick={() => setId(todo.id!)}>删除</button>
-                </li>
-              )}
-            </For>
-          </ul>
-        </Show>
-      </div>
-    </Layout>
+        <div class="mx-2 my-8 p-2">
+          {todos.loading && <div>加载中...</div>}
+          {todos.error && <div>加载失败</div>}
+          <Show when={todos()}>
+            <ul class="space-y-2">
+              <For each={todos()!.data.list as todo[]}>
+                {(todo) => (
+                    <li class="p-2 border dark:border-gray-600 rounded-lg flex justify-between items-center">
+                      <div class="flex items-center gap-4">
+                        <span class="badge badge-lg">{todo.id}</span>
+                        <span>{todo.title}</span>
+                      </div>
+                      <button class="btn btn-sm" onclick={() => setId(todo.id!)}>删除</button>
+                    </li>
+                )}
+              </For>
+            </ul>
+          </Show>
+        </div>
+      </Layout>
   );
 }
