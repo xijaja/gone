@@ -24,7 +24,7 @@ async function deleteTodoById(id: number) {
 
 export default function HomePage() {
     // 获取
-    const [todos, {refetch}] = createResource(getTodos); // 获取全部待办
+    const [todos, { refetch }] = createResource(getTodos); // 获取全部待办
     // 新增
     const [title, setTitle] = createSignal<string>(""); // 输入框的值
     const [todo, setTodo] = createSignal<todo>(); // 新增待办
@@ -46,8 +46,6 @@ export default function HomePage() {
         }
     })
 
-    // @ts-ignore
-    // @ts-ignore
     return (
         <Layout>
             <div class="flex gap-4 justify-center">
@@ -57,9 +55,9 @@ export default function HomePage() {
                     placeholder="还有什么事是待办的呢？"
                     class="input input-bordered w-full max-w-xs"
                     onChange={(e) => setTitle(e.currentTarget.value)}
-                    // onInput={(e) => setTitle(e.currentTarget.value)}
+                // onInput={(e) => setTitle(e.currentTarget.value)}
                 />
-                <button class="btn" onclick={() => setTodo({title: title()})}>
+                <button class="btn" onclick={() => setTodo({ title: title() })}>
                     添加事项
                 </button>
             </div>
