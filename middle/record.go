@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"gone/db/model"
-	"log"
+	"strconv"
 	"time"
 )
 
@@ -24,65 +24,76 @@ func RecordLogs(app *fiber.App) {
 	// 追加请求 ID，重写响应体
 	// 将请求信息和响应信息记录到数据库
 	app.Use(func(c *fiber.Ctx) error {
+		// 如果请求体看起来像 JSON，但 Content-Type 不正确，则设置它
+		if c.Is("json") && c.Get("Content-Type") != "application/json" {
+			c.Request().Header.Set("Content-Type", "application/json")
+		}
+
 		// 获取当前时间
 		startTime := time.Now()
 		// 在 Fiber 上下文中保存 start time
 		c.Locals("startTime", startTime)
+
+		// 保存原始请求体
+		reqBody := c.Body()
+		// 创建请求体的副本
+		reqBodyCopy := make([]byte, len(reqBody))
+		copy(reqBodyCopy, reqBody)
+
+		// 重新设置请求体，以便后续处理器可以读取
+		c.Request().SetBody(reqBodyCopy)
+
 		// 调用下一个处理程序
 		err := c.Next() // 递归调用, 从这里开始执行下一个中间件, 直到最后一个中间件, 然后再从最后一个中间件开始往前执行
+
 		// 获取 Fiber 上下文中的 start time
 		startTime, _ = c.Locals("startTime").(time.Time)
 		// 获取当前时间
 		endTime := time.Now()
-		// 计算请求执行时间，秒保留 3 位小数点，时间间隔: 0.033 秒 (即：33毫秒)
-		duration := float64(endTime.Sub(startTime).Milliseconds()) / 1e3
+		// 计算请求执行时间，单位为毫秒，精确到微秒
+		// 例如：2.456 表示 2毫秒456微秒
+		duration := float64(endTime.Sub(startTime).Microseconds()) / 1e3
 
 		// 获取 request_id 请求 id
 		rid := c.Locals("request_id").(string)
 
-		// 获取 API 请求体
-		var reqBody map[string]interface{}
-		if err := json.Unmarshal(c.Request().Body(), &reqBody); err != nil {
-			reqBody = map[string]interface{}{"error": err.Error(), "original": string(c.Request().Body())}
-		}
-		// 获取 API 响应体
-		var resBody map[string]interface{}
-		if err := json.Unmarshal(c.Response().Body(), &resBody); err != nil {
-			resBody = map[string]interface{}{"error": err.Error(), "original": string(c.Response().Body())}
-		} else {
-			resBody["rid"] = rid // 将请求 ID 存入响应体，还原响应体
-			// 将响应体转为 []byte 并重写响应体
-			resBodyByte, _ := json.Marshal(resBody)
-			_, err = c.Write(resBodyByte)
-			if err != nil {
-				log.Println("重写 resBodyByte err:", err)
-				return err
-			}
+		// 解析请求体
+		var reqBodyMap map[string]interface{}
+		if err := json.Unmarshal(reqBody, &reqBodyMap); err != nil {
+			reqBodyMap = map[string]interface{}{"error": "无法解析请求体", "original": string(reqBody)}
 		}
 
-		// 请求路径
-		pathUrl := c.Path()
-		// 如果 pathUrl 以 /assets 或 /src/assets 或 /favicon 开头，则不记录日志
-		if len(pathUrl) >= 7 {
-			if pathUrl[0:7] == "/assets" || pathUrl[0:11] == "/src/assets" || pathUrl[0:8] == "/favicon" {
-				return err
-			}
+		// 获取响应体
+		resBody := c.Response().Body()
+		var resBodyMap map[string]interface{}
+		if err := json.Unmarshal(resBody, &resBodyMap); err != nil {
+			resBodyMap = map[string]interface{}{"error": "无法解析响应体", "original": string(resBody)}
 		}
+
+		// 添加请求ID到响应体
+		resBodyMap["rid"] = rid
 
 		// 将请求存入日志库
 		lg := model.Logs{
 			ReqId:    rid,                                    // 请求ID
-			IP:       c.IP(),                                 // 请求 IP
-			Url:      pathUrl,                                // 请求路径
+			IP:       c.Get("X-Real-IP"),                     // 请求 IP
+			Url:      c.Path(),                               // 请求路径
 			Method:   c.Method(),                             // 请求方法
 			Status:   c.Response().StatusCode(),              // 请求状态码
 			Duration: duration,                               // 请求耗时
 			Params:   c.Request().URI().QueryArgs().String(), // 请求参数
 			Header:   c.Request().Header.String(),            // 请求头
-			Body:     reqBody,                                // 请求体
-			Resp:     resBody,                                // 响应体
+			Body:     reqBodyMap,                             // 请求体
+			Resp:     resBodyMap,                             // 响应体
 		}
 		go lg.Create() // 异步入库, 提升性能且不影响主流程
+
+		// 重写响应体
+		newResBody, _ := json.Marshal(resBodyMap)
+		c.Response().SetBody(newResBody)
+		c.Response().Header.Set("Content-Type", "application/json")
+		c.Response().Header.Set("Content-Length", strconv.Itoa(len(newResBody)))
+		// 返回错误
 		return err
 	})
 }
