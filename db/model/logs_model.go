@@ -7,7 +7,7 @@ type Logs struct {
 	Url       string         `gorm:"comment:请求的url;type:varchar(256);NOT NULL;<-:create" json:"url"`
 	Method    string         `gorm:"comment:请求的方法;type:varchar(64);NOT NULL;<-:create" json:"method"`
 	Status    int            `gorm:"comment:请求的状态码;type:smallint;<-:create" json:"status"`
-	Duration  float64        `gorm:"comment:请求耗时,单位:秒;type:decimal(10,3);<-:create" json:"duration"`
+	Duration  float64        `gorm:"comment:请求耗时,单位:毫秒;type:decimal(10,3);<-:create" json:"duration"`
 	Params    string         `gorm:"comment:请求的参数;type:varchar(1024);<-:create" json:"params,omitempty"`
 	Header    string         `gorm:"comment:请求的header;type:varchar(1024);<-:create" json:"header"`
 	Body      map[string]any `gorm:"comment:请求的body;type:json;<-:create" json:"body"`
