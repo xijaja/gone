@@ -19,3 +19,10 @@ http
 
 # Build files
 tmp
+.air.toml
+
+# Frontend build files
+frontend/dist
+frontend/build
+svelte/dist
+svelte/build

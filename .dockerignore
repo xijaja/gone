@@ -9,6 +9,7 @@
 # Script files
 *.sh
 makefile
+script
 
 # OS generated files
 .DS_Store
@@ -22,4 +23,7 @@ tmp
 # 忽略前端代码
 frontend
 !frontend/dist
-
+!frontend/*.go
+svelte
+!svelte/build
+!svelte/*.go

@@ -1,53 +1,39 @@
-# 使用 docker build 构建镜像
+# 第一阶段：构建阶段
+# 使用 golang:alpine 作为基础镜像,并命名为 builder
 FROM golang:alpine AS builder
 
-# 设置环境变量
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64 \
-    GOPROXY=https://goproxy.cn,direct
-
 # 设置工作目录
-WORKDIR $GOPATH/src/building
+WORKDIR /go/src/building
 
-# 将当前目录下的所有文件复制到工作目录中
+# 将项目目录下的所有文件复制到容器的工作目录
 COPY . .
 
-# 下载依赖
-RUN go mod tidy
+# 下载项目依赖
+RUN go mod download
 
-# 编译
-RUN go build -o goneapp -tags embed main.go
+# 构建 Go 应用程序
+# 编译应用 -ldflags="-s -w" 用于减小二进制文件大小
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o app ./cmd/app/main.go
 
-# 使用最小的镜像
+# 第二阶段：运行阶段
+# 使用 alpine 作为基础镜像以减小最终镜像大小
 FROM alpine:latest
 
-# 设置工作目录
-WORKDIR /app
+# 设置时区为北京时间
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo "Asia/Shanghai" > /etc/timezone && \
+    apk del tzdata
 
-# 将编译好的二进制文件复制到镜像中
-# 如果有配置文件，应在此时复制到镜像中
-COPY --from=builder $GOPATH/src/building/goneapp .
+# 从 builder 阶段复制编译好的二进制文件
+COPY --from=builder /go/src/building/app ./app
 
-# 暴露端口
+# 从 builder 阶段复制 .env 文件
+COPY --from=builder /go/src/building/.env .
+
+# 声明容器将监听的端口
 EXPOSE 3030
 
-# 暴露目录
-VOLUME /app/logs
-
-# 运行 app
-CMD ["nohup /app/goneapp >> /app/logs/goneapp.log 2>&1 &"]
-
-
-# 此 Dockerfile 结合 docker-compose.yml 一同使用，但也可以单独使用
-# 单独构建镜像：
-# 构建推送之前应先在 Docker Hub 上注册该同名镜像
-# 构建镜像：当前平台构建
-# docker build -t goneapp:0.1 .
-# 构建镜像：多平台构建，“--push” 推送到 hub，另外 “-o type=registry” 是 type=image,push=true 的精简表示
-# docker buildx build -t xijaja/goneapp:0.1 --platform=linux/arm64,linux/amd64,windows/amd64 . --push
-# 拉取镜像：
-# docker pull xijaja/goneapp:0.1
-# 启动容器（直接执行该命令时，若本地无该镜像则将自动拉取）：
-# docker run -itd -p 5000:5000 --name resume xijaja/goneapp:0.1
+# 设置入口点和默认命令
+ENTRYPOINT ["/app"]
+CMD ["-s"]

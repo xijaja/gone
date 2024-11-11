@@ -14,62 +14,81 @@
 
 两者均使用 embed 包，将前端打包后的文件嵌入到二进制文件中，最终部署时仅需部署该二进制文件。 `with-sqlite` 分支还将 sqlite 数据库嵌入。
 
-如果使用 Postgres/MySQL/Mongo/Redis 等数据库在服务器上使用 docker 启动即可。
+早先，前端部分使用 Solid 和 DaisyUI，现在改用 SvelteKit 主要还是因为近期发布了 Svelte 5 这个带有符文（Runes）的版本。并且有神级 UI 库 ShadcnUI 加持，编写前端时会更加舒适。
 
 大致技术栈：
 
-- 前端：Solid + TypeScript + TailwindCSS + DaisyUI
+- 前端：Svelte/Kit + TypeScript + TailwindCSS + ShadcnUI
 - 后端：Golang + Fiber + GORM + Sqlite3/Postgres/MySQL + Dotenv + Air
 
-最后，技术栈不是固定的，可以使用 vue/react/svelte 等来替换 solid 前端框架，也可以使用 rust 和 rust-embed 来替换 golang。
+最后，技术栈不是固定的，可以使用 Vue/React/Solid 等来替换 Svelte 前端框架，也可以使用 Rust 和 rust-embed 来替换 Golang。
 
 ## 项目目录
 
-```
+项目目录也参考 [Go 项目标准布局](https://github.com/golang-standards/project-layout/blob/master/README_zh-CN.md) 进行了些许调整：
+
+```sh
+.
 ├── README.md                   # 项目介绍
-├── main.go                     # 程序入口
-├── go.mod                      # 项目依赖
 ├── Dockerfile                  # Dockerfile
-├── docker-compose.yml          # docker-compose
+├── deploy.sh                   # 部署脚本
+├── makefile                    # makefile
+├── go.mod                      # go.mod
+├── go.sum                      # go.sum
+├── LICENSE                     # 许可证
 ├── apis                        # api 路由
-│   ├── api.go                  # api 路由入口
-│   └── xxx.go                  # xxx 路由
-├── db                          # 数据库
-│   ├── access                  # 数据库操作
-│   │   ├── conn.go             # 数据库连接
-│   │   └── sqlite.db           # sqlite 数据库文件
-│   └── model                   # 数据库模型
-│       └── xxx_model.go        # xxx 模型
-├── frontend                    # 前端
-│   ├── frontend.go             # 嵌入前端
-│   ├── dist                    # 前端编译后的目录
-│   ├── public                  # 静态资源
-│   ├── src                     # 前端源码
-│   │   ├── index.tsx           # 入口文件
-│   │   ├── pages               # 页面
-│   │   │   └── xxx.tsx         # xxx 页面
-│   │   ├── auto-import.d.ts    # 自动导入
-│   │   ├── router.tsx          # 前端路由
-│   │   └── styles              # 样式目录
-│   ├── index.html              # html 模板
-│   ├── package.json            # package.json
-│   ├── pnpm-lock.yaml          # pnpm-lock.yaml
-│   ├── postcss.config.js       # postcss 配置
-│   ├── tailwind.config.cjs     # tailwind 配置
-│   ├── tsconfig.json           # ts 配置
-│   └── vite.config.ts          # vite 配置
-├── middle                      # 中间件
-│   ├── logs.go                 # 日志中间件
-│   └── static.go               # 静态文件中间件
-├── start                       # 启动
+│   ├── handler                 # 路由处理
+│   │   └── xxx.go              # xxx 路由处理
+│   ├── middleware              # 中间件
+│   │   ├── logs.go             # 日志中间件
+│   │   └── xxx.go              # xxx 中间件
+│   └── router.go               # 路由
+├── cmd                         # 命令
+│   ├── app                     # 程序入口
+│   │   └── main.go             # 程序入口
+│   └── cli                     # 命令行入口
+│       └── main.go             # 命令行入口
+├── config                      # 配置
 │   ├── conf.go                 # 环境配置
 │   └── start.go                # 启动配置
-└── utils
+├── database                    # 数据库
+│   ├── access                  # 数据库连接
+│   │   ├── postgres.go         # pg 数据库连接
+│   │   └── xxx.go              # xxx 数据库连接
+│   └── model                   # 数据库模型
+│       ├── auto_migrate.go     # 自动迁移
+│       └── xxx_model.go        # xxx 模型
+├── internal                    # 内部包
+├── pkg                         # 外部包
+└── svelte                      # 前端
+    ├── frontend.go             # 嵌入前端
+    ├── src                     # 前端源码
+    │   ├── app.css             # app 样式
+    │   ├── app.d.ts            # app 类型
+    │   ├── app.html            # app html
+    │   ├── lib                 # 库
+    │   │   ├── components      # 组件
+    │   │   ├── hooks           # 钩子
+    │   │   ├── index.ts        # 入口
+    │   │   └── utils.ts        # 工具
+    │   └── routes              # 路由
+    │       ├── +layout.svelte  # 布局
+    │       ├── +layout.ts      # 布局
+    │       └── +page.svelte    # 页面
+    ├── static                  # 静态资源
+    ├── package.json            # package.json
+    ├── components.json         # ShadcnUI 组件配置
+    ├── eslint.config.js        # ESLint 配置
+    ├── postcss.config.js       # PostCSS 配置
+    ├── svelte.config.js        # Svelte 配置
+    ├── tailwind.config.ts      # TailwindCSS 配置
+    ├── tsconfig.json           # TypeScript 配置
+    └── vite.config.ts          # Vite 配置
 ```
 
 ## 食用方法
 
-```
+```sh
 # 1.克隆项目
 git clone https://github.com/xijaja/gone.git
 
@@ -77,22 +96,19 @@ git clone https://github.com/xijaja/gone.git
 cd gone
 
 # 3.编译前端（npm / yarn / pnpm）
-cd frontend && pnpm install && pnpm run build
+cd svelte && pnpm install && pnpm run build
 
 # 4.启动后端
-cd .. && go run main.go
+cd .. && go run ./cmd/app
 
-# 5.构建可执行文件
-go build -o app main.go
-
-# 不过，要记得编译前端
-cd frontend && pnpm build && cd .. && go build -o app main.go
+# 5.构建可执行文件（要记得编译前端）
+go build -o app ./cmd/app
 
 # 另外，构建不同的平台需要交叉编译
-GOOS=linux GOARCH=amd64 go build -o app main.go        # linux
-GOOS=linux GOARCH=arm64 go build -o app main.go        # linux arm
-GOOS=darwin GOARCH=arm64 go build -o app main.go       # mac apple silicon
-GOOS=darwin GOARCH=amd64 go build -o app main.go       # mac intel
-GOOS=windows GOARCH=amd64 go build -o app.exe main.go  # windows
-GOOS=windows GOARCH=arm64 go build -o app.exe main.go  # windows arm
+GOOS=linux GOARCH=amd64 go build -o app ./cmd/app        # linux amd64
+GOOS=linux GOARCH=arm64 go build -o app ./cmd/app        # linux arm64
+GOOS=darwin GOARCH=arm64 go build -o app ./cmd/app       # mac apple silicon
+GOOS=darwin GOARCH=amd64 go build -o app ./cmd/app       # mac intel
+GOOS=windows GOARCH=amd64 go build -o app.exe ./cmd/app  # windows amd64
+GOOS=windows GOARCH=arm64 go build -o app.exe ./cmd/app  # windows arm64
 ```
