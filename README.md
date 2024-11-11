@@ -18,8 +18,8 @@
 
 大致技术栈：
 
-- 前端：Svelte/Kit + TypeScript + TailwindCSS + ShadcnUI
-- 后端：Golang + Fiber + GORM + Sqlite3/Postgres/MySQL + Dotenv + Air
+- 前端：[Svelte/Kit](https://kit.svelte.dev) + TypeScript + [TailwindCSS](https://tailwindcss.com) + [ShadcnUI](https://github.com/shadcn-svelte/ui)
+- 后端：Golang + [Fiber](https://github.com/gofiber/fiber) + [GORM](https://gorm.io) + Sqlite3/Postgres/MySQL + Dotenv + Air
 
 最后，技术栈不是固定的，可以使用 Vue/React/Solid 等来替换 Svelte 前端框架，也可以使用 Rust 和 rust-embed 来替换 Golang。
 
