@@ -1,38 +1,85 @@
-# 编译本机可执行文件
+# 定义变量
+DOCKER_IMAGE_NAME := app
+DOCKER_IMAGE_TAG := latest
+DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+REMOTE_HOST := your-cloud-server-name
+DOCKER_BUILD_PLATFORM := linux/amd64
+PROJECT_PORT := 3030
+
+# 构建前端项目
+.PHONY: frontend
+frontend:
+	cd svelte && pnpm run build && cd ..
+
+# 构建 Docker 镜像
+.PHONY: build
 build:
-	make build-front
-	make build-back
-build-back:
-	go build -o app -tags embed main.go
-build-front:
-	cd frontend && pnpm build && cd ..
+	docker rmi $(DOCKER_IMAGE) || true
+	docker build --platform $(DOCKER_BUILD_PLATFORM) -t $(DOCKER_IMAGE) .
+	docker image prune -f
 
-# 交叉编译，嵌入前端静态资源
-b-lin:
-	GOOS=linux GOARCH=amd64 go build -o app -tags embed main.go
-b-mac:
-	GOOS=darwin GOARCH=arm64 go build -o app -tags embed main.go
-b-mac-amd:
-	GOOS=darwin GOARCH=amd64 go build -o app -tags embed main.go
-b-win:
-	GOOS=windows GOARCH=amd64 go build -o app.exe -tags embed main.go
+# 保存并传输镜像
+.PHONY: save
+save:
+	docker save $(DOCKER_IMAGE) | gzip | ssh $(REMOTE_HOST) "docker load"
 
-# 交叉编译，嵌入 sqlite 数据库
-b-lin-sqlite:
-	GOOS=linux GOARCH=amd64 go build -o app -tags 'sqlite' main.go
-b-mac-sqlite:
-	GOOS=darwin GOARCH=arm64 go build -o app -tags 'sqlite' main.go
-b-mac-amd-sqlite:
-	GOOS=darwin GOARCH=amd64 go build -o app -tags 'sqlite' main.go
-b-win-sqlite:
-	GOOS=windows GOARCH=amd64 go build -o app.exe -tags 'sqlite' main.go
+# 在远程主机上运行容器
+.PHONY: run
+run:
+	ssh $(REMOTE_HOST) "\
+	docker ps -a | grep $(DOCKER_IMAGE_NAME) || true && \
+	docker rm -f $(DOCKER_IMAGE_NAME) || true && \
+	docker image prune -f && \
+	docker run -itd -v /home/ubuntu/part/storage:/storage --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
+	docker ps | grep $(DOCKER_IMAGE_NAME)"
+
+# 清理本地镜像
+.PHONY: clean
+clean:
+	docker rmi $(DOCKER_IMAGE) || true && docker image prune -f
+
+# 查看远程主机上的 Docker 状态
+.PHONY: remote-ps
+remote-ps:
+	ssh $(REMOTE_HOST) "docker ps -a"
+
+# 查看远程主机上的镜像
+.PHONY: remote-images
+remote-images:
+	ssh $(REMOTE_HOST) "docker images"
+
+# 部署流程
+.PHONY: deploy
+deploy:
+	make frontend
+	make build
+	make save
+	make run
+	make clean
+
+# 帮助信息
+.PHONY: help
+help:
+	@echo "可用的命令:"
+	@echo "  make pg               - 启动本地的 postgres 数据库"
+	@echo "  make rs               - 启动本地的 redis 数据库"
+	@echo "  make frontend         - 构建前端项目"
+	@echo "  make build            - 构建 Docker 镜像"
+	@echo "  make save             - 保存并传输镜像到远程主机"
+	@echo "  make run              - 在远程主机上运行容器"
+	@echo "  make remote-ps        - 查看远程主机上的 Docker 状态"
+	@echo "  make remote-images    - 查看远程主机上的镜像"
+	@echo "  make deploy           - 执行完整的部署流程"
+	@echo "  make clean            - 清理本地镜像"
+	@echo "  make help             - 显示此帮助信息"
 
 # 使用 docker 启动 postgres 数据库
+.PHONY: pg
 pg:
 	docker run -itd \
 	--name pg \
 	-p 5432:5432 \
-	-v postgres:/var/lib/postgresql/data \
+	-v postgres-data:/var/lib/postgresql/data \
 	-e POSTGRES_USER=postgres \
 	-e POSTGRES_PASSWORD=postgrespassword \
 	-e POSTGRES_DB=postgres \
@@ -40,9 +87,10 @@ pg:
 	postgres
 
 # 使用 docker 启动 redis 数据库（注：密码要写在最后）
+.PHONY: rs
 rs:
 	docker run -itd \
-	-v $PWD/redis:/data \
+	-v redis-data:/data \
 	--name rs \
 	-p 6379:6379 \
 	--restart always \
