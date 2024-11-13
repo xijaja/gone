@@ -49,8 +49,7 @@
 }
 
 @layer base {
-	html,
-	body {
+	html {
 		@apply h-full;
 	}
 	* {
