@@ -27,7 +27,7 @@ jobs:
           node-version: "20" # 使用 Node.js 20.x 版本
 
       # 步骤3: 安装 pnpm 包管理器
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         with:
           version: 9 # 使用 pnpm 9.x 版本
 
@@ -40,7 +40,7 @@ jobs:
 
       # 步骤5: 设置依赖缓存
       # 这可以显著提升后续构建的速度
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Setup pnpm cache
         with:
           # 缓存 pnpm store 目录
@@ -57,6 +57,28 @@ jobs:
           cd svelte
           pnpm install --no-frozen-lockfile
           pnpm run build
+
+      # 在部署前创建 .env 文件
+      - name: Create .env file
+        run: |
+          cat << EOF > .env
+          FRONTEND_STATIC_PATH=${{ secrets.FRONTEND_STATIC_PATH }}
+
+          PG_HOST=${{ secrets.PG_HOST }}
+          PG_PORT=${{ secrets.PG_PORT }}
+          PG_USER=${{ secrets.PG_USER }}
+          PG_PASS=${{ secrets.PG_PASS }}
+          PG_BASE=${{ secrets.PG_BASE }}
+          PG_SSLMODE=${{ secrets.PG_SSLMODE }}
+
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          REDIS_PASS=${{ secrets.REDIS_PASS }}
+          REDIS_BASE=${{ secrets.REDIS_BASE }}
+
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          CSRF_SECRET=${{ secrets.CSRF_SECRET }}
+          EOF
 
       # 步骤7: 设置 Fly.io CLI
       - uses: superfly/flyctl-actions/setup-flyctl@master
