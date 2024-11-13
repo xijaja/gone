@@ -54,9 +54,9 @@ jobs:
       # 这一步很重要，因为后端需要嵌入构建后的静态文件
       - name: Build Frontend
         run: |
-          cd svelte            # 进入前端项目目录
-          pnpm install        # 安装依赖
-          pnpm run build      # 构建前端项目
+          cd svelte
+          pnpm install --no-frozen-lockfile
+          pnpm run build
 
       # 步骤7: 设置 Fly.io CLI
       - uses: superfly/flyctl-actions/setup-flyctl@master
