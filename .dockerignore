@@ -21,9 +21,6 @@ http
 tmp
 
 # 忽略前端代码
-frontend
-!frontend/dist
-!frontend/*.go
 svelte
 !svelte/build
 !svelte/*.go

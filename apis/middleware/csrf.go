@@ -4,8 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/utils"
 	"gone/config"
+	// "github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v2/utils"
 	"time"
 )
 
@@ -27,4 +28,13 @@ func CsrfEncrypt(app *fiber.App) {
 		KeyGenerator:   utils.UUID,          // 生成 csrf token 的方法
 		ContextKey:     "csrf-token",        //	csrf token 存储在 ctx.Locals 中的名称
 	}))
+
+	// // 首先配置 session store
+	// var store = session.New()
+	// // 然后在 CSRF 中间件配置中使用
+	// app.Use(csrf.New(csrf.Config{
+	// 	Storage:   store,                 // 使用 session store
+	// 	KeyLookup: "header:X-CSRF-Token", // 从请求头中获取 token
+	// 	// ... 其他配置
+	// }))
 }

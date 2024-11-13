@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>GONE</title>
+	<title>GONE | TODO EXAMPLE</title>
 </svelte:head>
 
 <!-- 模式切换 -->

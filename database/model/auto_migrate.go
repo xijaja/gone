@@ -18,7 +18,7 @@ var db *gorm.DB
 func init() {
 	// 初始化数据库
 	pgc := config.Config.Postgres
-	db = access.InitPostgresSQL(pgc.Host, pgc.User, pgc.Port, pgc.Pass, pgc.Base)
+	db = access.InitPostgresSQL(pgc.Host, pgc.User, pgc.Port, pgc.Pass, pgc.Base, pgc.Sslmode)
 	// 自动迁移，入参如 &Logs{}, &Todos{}
 	err := db.AutoMigrate(sqlTagExecutor(&Logs{}, &Todos{})...)
 	if err != nil {

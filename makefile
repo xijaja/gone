@@ -23,14 +23,23 @@ build:
 save:
 	docker save $(DOCKER_IMAGE) | gzip | ssh $(REMOTE_HOST) "docker load"
 
-# 在远程主机上运行容器
+# 在本地运行容器
 .PHONY: run
 run:
+	docker ps -a | grep $(DOCKER_IMAGE_NAME) || true && \
+	docker rm -f $(DOCKER_IMAGE_NAME) || true && \
+	docker image prune -f && \
+	docker run -itd --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
+	docker ps | grep $(DOCKER_IMAGE_NAME)
+
+# 在远程主机上运行容器
+.PHONY: remote-run
+remote-run:
 	ssh $(REMOTE_HOST) "\
 	docker ps -a | grep $(DOCKER_IMAGE_NAME) || true && \
 	docker rm -f $(DOCKER_IMAGE_NAME) || true && \
 	docker image prune -f && \
-	docker run -itd -v /home/ubuntu/part/storage:/storage --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
+	docker run -itd --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
 	docker ps | grep $(DOCKER_IMAGE_NAME)"
 
 # 清理本地镜像
@@ -54,8 +63,13 @@ deploy:
 	make frontend
 	make build
 	make save
-	make run
+	make remote-run
 	make clean
+
+# fly 部署
+.PHONY: fly
+fly:
+	cd svelte && pnpm run build && cd .. && fly deploy
 
 # 帮助信息
 .PHONY: help
@@ -66,7 +80,7 @@ help:
 	@echo "  make frontend         - 构建前端项目"
 	@echo "  make build            - 构建 Docker 镜像"
 	@echo "  make save             - 保存并传输镜像到远程主机"
-	@echo "  make run              - 在远程主机上运行容器"
+	@echo "  make remote-run       - 在远程主机上运行容器"
 	@echo "  make remote-ps        - 查看远程主机上的 Docker 状态"
 	@echo "  make remote-images    - 查看远程主机上的镜像"
 	@echo "  make deploy           - 执行完整的部署流程"

@@ -18,7 +18,7 @@
 
 	// 定义 todo 的初始值
 	const initialTodos: Todo[] = [
-		{ id: '1', content: '君子藏起于身，待时而动', done: true },
+		{ id: '1', content: '君子藏器于身，待时而动', done: true },
 		{ id: '2', content: '人有冲天之志，非运不能自通', done: true },
 		{ id: '3', content: '择一业，谋食养命', done: true },
 		{ id: '4', content: '等一运，扭转乾坤', done: false },

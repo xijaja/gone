@@ -23,8 +23,8 @@ func main() {
 		middleware.CsrfEncrypt(app) // 启用 CSRF 保护，这个目的是为了防止跨站请求伪造
 		middleware.RecordLogs(app)  // 日志入库，这个目的是为了方便查看日志
 	}
-	apis.Api(app.Group("api")) // 注册路由组，先于静态页面，否则其将覆盖 api
-	middleware.Pages(app)      // 静态文件，将静态文件打包
+	apis.Router(app)      // 注册路由组，先于静态页面，否则其将覆盖 api
+	middleware.Pages(app) // 静态文件，将静态文件打包
 
 	// 启动服务，监听 3030 端口
 	config.GracefullyShuttingDown(app, ":3030")

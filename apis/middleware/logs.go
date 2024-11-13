@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"net/http"
+	"strings"
 )
 
 func Logs(app *fiber.App) {
@@ -13,8 +14,10 @@ func Logs(app *fiber.App) {
 	// }))
 	// /assets 开头的 GET 请求，不会被记录
 	app.Use(func(c *fiber.Ctx) error {
-		if c.Method() == http.MethodGet && len(c.Path()) >= 7 {
-			if c.Path()[0:7] == "/assets" || c.Path()[0:11] == "/src/assets" || c.Path()[0:8] == "/favicon" {
+		if c.Method() == http.MethodGet {
+			pathUrl := c.Path() // 请求路径
+			// 如果请求路径中不含有 api 字样则忽略
+			if !strings.Contains(pathUrl, "/api") {
 				return c.Next() // 忽略，将不打印日志
 			}
 		}

@@ -6,9 +6,10 @@ import (
 	"gone/apis/middleware"
 )
 
-// Api 路由组，访问以下所有路由都需加上 /api
-func Api(api fiber.Router) {
-	api.Get("/", hello) // 保留的路由，用以验活
+// Router 路由组，访问以下所有路由都需加上 /api
+func Router(app *fiber.App) {
+	api := app.Group("api") // 创建 api 路由组
+	api.Get("/", hello)     // 保留的路由，用以验活
 
 	apiV1 := api.Group("/v1", middleware.Auth()) // api/v1 路由组
 

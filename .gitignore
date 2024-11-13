@@ -22,7 +22,7 @@ tmp
 .air.toml
 
 # Frontend build files
-frontend/dist
-frontend/build
-svelte/dist
 svelte/build
+
+# env file
+.env
