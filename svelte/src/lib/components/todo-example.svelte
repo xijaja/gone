@@ -1,20 +1,9 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { quintOut } from 'svelte/easing';
-	import { crossfade } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { Button } from './ui/button';
-	import { Checkbox } from './ui/checkbox';
 	import Input from './ui/input/input.svelte';
-	import { Label } from './ui/label';
-	import { X } from 'lucide-svelte';
-
-	// 定义 todo 的类型
-	interface Todo {
-		id: string; // 唯一标识
-		content: string; // 内容
-		done: boolean; // 是否完成
-	}
+	import TodoList from './todo-list.svelte';
+	import type { Todo } from '$lib/todo-type';
 
 	// 定义 todo 的初始值
 	const initialTodos: Todo[] = [
@@ -52,23 +41,6 @@
 	function deleteTodo(id: string) {
 		todos = todos.filter((todo) => todo.id !== id);
 	}
-
-	// 创建 crossfade 动画
-	const [send, receive] = crossfade({
-		duration: 400,
-		fallback(node, params) {
-			const style = getComputedStyle(node); // 获取节点的样式
-			const transform = style.transform === 'none' ? '' : style.transform; // 获取 transform 属性
-			return {
-				duration: 400, // 动画持续时间
-				easing: quintOut, // 动画缓动函数
-				css: (t) => `
-					transform: ${transform} scale(${t});
-					opacity: ${t}
-				` // 动画样式，t 是动画进度
-			};
-		}
-	});
 </script>
 
 <form class="mb-10 flex w-full gap-2" onsubmit={addTodo}>
@@ -79,59 +51,11 @@
 <div class="grid grid-cols-2 gap-4">
 	<div>
 		<h2 class="text-lg font-bold">Todo List</h2>
-		<div class="mt-4 flex flex-col gap-2">
-			{#each todos.filter((todo) => !todo.done).reverse() as todo (todo.id)}
-				<div
-					class="hover:bg-muted group flex items-center gap-2 rounded-md p-2 transition-colors"
-					in:receive={{ key: todo.id }}
-					out:send={{ key: todo.id }}
-					animate:flip
-				>
-					<Checkbox id={todo.id} bind:checked={todo.done} />
-					<Label
-						id={todo.id}
-						for={todo.id}
-						class="break-all text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{todo.content}
-					</Label>
-					<button
-						class="text-muted-foreground ml-auto hidden size-4 cursor-pointer hover:text-red-500 group-hover:block"
-						onclick={() => deleteTodo(todo.id)}
-					>
-						<X />
-					</button>
-				</div>
-			{/each}
-		</div>
+		<TodoList todos={todos.filter((todo) => !todo.done)} {deleteTodo} />
 	</div>
 
 	<div>
 		<h2 class="text-lg font-bold">Done List</h2>
-		<div class="mt-4 flex flex-col gap-2">
-			{#each todos.filter((todo) => todo.done).reverse() as todo (todo.id)}
-				<div
-					class="hover:bg-muted group flex items-center gap-2 rounded-md p-2 transition-colors"
-					in:receive={{ key: todo.id }}
-					out:send={{ key: todo.id }}
-					animate:flip
-				>
-					<Checkbox id={todo.id} bind:checked={todo.done} />
-					<Label
-						id={todo.id}
-						for={todo.id}
-						class="break-all text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{todo.content}
-					</Label>
-					<button
-						class="text-muted-foreground ml-auto hidden size-4 cursor-pointer hover:text-red-500 group-hover:block"
-						onclick={() => deleteTodo(todo.id)}
-					>
-						<X />
-					</button>
-				</div>
-			{/each}
-		</div>
+		<TodoList todos={todos.filter((todo) => todo.done)} {deleteTodo} />
 	</div>
 </div>

@@ -32,20 +32,17 @@ jobs:
           version: 9 # 使用 pnpm 9.x 版本
 
       # 步骤4: 配置 pnpm 缓存
-      # 获取 pnpm 存储目录路径，用于后续缓存
       - name: Get pnpm store directory
+        id: pnpm-cache
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
       # 步骤5: 设置依赖缓存
-      # 这可以显著提升后续构建的速度
       - uses: actions/cache@v4
         name: Setup pnpm cache
         with:
-          # 缓存 pnpm store 目录
-          path: ${{ env.STORE_PATH }}
-          # 使用 pnpm-lock.yaml 的哈希作为缓存键
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
