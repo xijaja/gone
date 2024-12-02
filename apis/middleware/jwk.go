@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"gone/config"
 	"gone/database/dao"
-	"gone/internal/code"
+	"gone/internal/result"
 	"strings"
 	"time"
 )
@@ -49,7 +49,7 @@ func success(c *fiber.Ctx) error {
 	rds := dao.NewRedis(token.Raw)
 	// 如果返回值为 1 则表示该 token 存在于黑名单之中
 	if haveField := rds.IsRedisKey(); haveField == 1 {
-		return c.Status(fiber.StatusUnauthorized).JSON(code.Red.Reveal(fiber.Map{"msg": "Token 已过期，请重新登录"}))
+		return c.JSON(result.NoPermission("Token 已过期，请重新登录"))
 	}
 	// 自动续期
 	// 如果 token 的有效期小于 7 天，则修改 token 的有效期加 1 天
@@ -57,7 +57,7 @@ func success(c *fiber.Ctx) error {
 	if token.Valid && token.Claims.(jwt.MapClaims)["exp"].(float64)-float64(nowTime) < float64(60*60*24*7) {
 		token.Claims.(jwt.MapClaims)["exp"] = time.Now().Add(time.Hour * 24).Unix()
 	} else {
-		return c.JSON(code.Red.Reveal(fiber.Map{"msg": "登录过期"}))
+		return c.JSON(result.NoPermission("登录过期"))
 	}
 	return c.Next()
 }
@@ -65,9 +65,9 @@ func success(c *fiber.Ctx) error {
 // 用于处理错误的函数
 func jwtError(c *fiber.Ctx, err error) error {
 	if err.Error() == "Missing or malformed JWT" {
-		return c.Status(fiber.StatusBadRequest).JSON(code.Red.Reveal(fiber.Map{"msg": "缺少 Token 或格式错误"}))
+		return c.JSON(result.Error("缺少 Token 或格式错误"))
 	}
-	return c.Status(fiber.StatusUnauthorized).JSON(code.Red.Reveal(fiber.Map{"msg": "无效或过期的 Token"}))
+	return c.JSON(result.NoPermission("无效或过期的 Token"))
 }
 
 // 用于解密验证的函数

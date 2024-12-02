@@ -77,6 +77,7 @@ help:
 	@echo "可用的命令:"
 	@echo "  make pg               - 启动本地的 postgres 数据库"
 	@echo "  make rs               - 启动本地的 redis 数据库"
+	@echo "  make fly              - 部署到 fly.io"
 	@echo "  make frontend         - 构建前端项目"
 	@echo "  make build            - 构建 Docker 镜像"
 	@echo "  make save             - 保存并传输镜像到远程主机"

@@ -1,9 +1,8 @@
-package code
+package utils
 
 import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"gone/pkg/utils"
 	"log"
 )
 
@@ -23,7 +22,7 @@ func Validator(st interface{}) []*ErrorResponse {
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			var element ErrorResponse
-			element.Field = utils.CamelToSnake(err.StructNamespace())
+			element.Field = CamelToSnake(err.StructNamespace())
 			element.Tag = err.Tag()
 			element.Value = err.Param()
 			element.ErrorMsg = validatorErrorMsgMaker(element.Field, element.Tag, element.Value)

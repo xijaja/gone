@@ -18,9 +18,10 @@ func (t *Todos) TableName() string {
 }
 
 // AddOne 添加一条数据
-func (t *Todos) AddOne() *Todos {
-	db.Create(&t)
-	return t
+func (t *Todos) AddOne() {
+	// db.Create(&t)
+	// 使用原生语句创建
+	db.Exec("INSERT INTO todos (title, done) VALUES (?, ?)", t.Title, t.Done)
 }
 
 // FindOne 查询一条数据

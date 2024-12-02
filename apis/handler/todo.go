@@ -3,7 +3,9 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"gone/database/model"
-	"gone/internal/code"
+	"gone/internal/result"
+	"gone/pkg/utils"
+	"log"
 )
 
 // 待办事项管理
@@ -13,9 +15,8 @@ type Todo struct{}
 func (t *Todo) GetAllTodos(c *fiber.Ctx) error {
 	var todos model.Todos
 	var data = todos.FindAll()
-	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
-		"list": data,
-	}))
+	log.Println("data:", data)
+	return c.JSON(result.Success("获取全部 todos 成功").WithData(fiber.Map{"list": data}))
 }
 
 // 更新或添加
@@ -29,29 +30,23 @@ func (t *Todo) UpdateOrAddTodo(c *fiber.Ctx) error {
 	// 绑定请求参数
 	_ = c.BodyParser(&req)
 	// 验证请求参数
-	if errs := code.Validator(req); errs != nil {
-		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(fiber.Map{"failed": errs}))
+	if errs := utils.Validator(req); errs != nil {
+		return c.JSON(result.Error("请求参数错误").WithData(fiber.Map{"failed": errs}))
 	}
 	// 更新
-	if req.Id != 0 {
-		var todo model.Todos
+	var todo model.Todos
+	if req.Id > 0 {
 		todo.FindOne(req.Id)
 		todo.Title = req.Title
 		todo.Done = req.Done
 		todo.UpdateOne(req.Id)
-		return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
-			"msg": "更新 todo 成功",
-		}))
+		return c.JSON(result.Success("更新 todo 成功"))
 	}
-	// 添加
-	todo := model.Todos{
-		Title: req.Title,
-		Done:  req.Done,
-	}
+	log.Println("添加Todo")
+	todo.Title = req.Title
+	todo.Done = req.Done
 	todo.AddOne()
-	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
-		"msg": "添加 todo 成功",
-	}))
+	return c.JSON(result.Success("添加 todo 成功"))
 }
 
 // 删除待办事项
@@ -64,21 +59,14 @@ func (t *Todo) DeleteTodo(c *fiber.Ctx) error {
 		idInt = idInt*10 + int(v-'0')
 	}
 	if idInt == 0 {
-		return c.Status(fiber.StatusOK).JSON(code.Bad.Reveal(fiber.Map{
-			"msg": "id 参数有误或为空",
-		}))
+		return c.JSON(result.Error("id 参数有误或为空"))
 	}
 	var todo model.Todos
 	todo.DeleteOne(idInt)
-
-	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
-		"msg": "成功删除待办",
-	}))
+	return c.JSON(result.Success("成功删除待办"))
 }
 
 // 完成待办事项
 func (t *Todo) DoneTodo(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(code.Oka.Reveal(fiber.Map{
-		"msg": "该接口尚未完善",
-	}))
+	return c.JSON(result.Success("该接口尚未完善"))
 }
