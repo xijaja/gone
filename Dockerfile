@@ -8,6 +8,9 @@ WORKDIR /go/src/building
 # 将项目目录下的所有文件复制到容器的工作目录
 COPY . .
 
+# 使用 goproxy 代理（可选）
+# RUN go env -w GOPROXY="https://goproxy.cn,direct"
+
 # 下载项目依赖
 RUN go mod download
 
