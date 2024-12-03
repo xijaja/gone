@@ -1,4 +1,4 @@
-package dao
+package cache
 
 import (
 	"encoding/json"

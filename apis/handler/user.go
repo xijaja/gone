@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gone/apis/middleware"
-	"gone/database/dao"
+	"gone/database/cache"
 	"gone/database/model"
 	"gone/internal/result"
 	"gone/pkg/utils"
@@ -54,7 +54,7 @@ func (u *User) Logout(c *fiber.Ctx) error {
 	// 获取 jwt 并提取 token
 	token := c.Locals("user").(*jwt.Token).Raw
 	// 将 token 作废，保存到 redis 标记为无效
-	rds := dao.NewRedis(token)         // 将 token 作为 redis 的 key，此处 key-value 同值
+	rds := cache.NewRedis(token)       // 将 token 作为 redis 的 key，此处 key-value 同值
 	rds.SetRedisKey(token, 60*60*24*3) // 3 天后过期删除，覆盖原有的过期时间（可以通过计算设置为剩余时间，但没必要）
 	return c.JSON(result.Success("登出成功"))
 }

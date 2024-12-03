@@ -6,7 +6,7 @@ import (
 	jwtWare "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
 	"gone/config"
-	"gone/database/dao"
+	"gone/database/cache"
 	"gone/internal/result"
 	"strings"
 	"time"
@@ -46,7 +46,7 @@ func Auth() func(ctx *fiber.Ctx) error {
 func success(c *fiber.Ctx) error {
 	// 如果 token 作废，则要求用户重新登录
 	token := c.Locals("user").(*jwt.Token) // 获取 jwt, 并提取 token
-	rds := dao.NewRedis(token.Raw)
+	rds := cache.NewRedis(token.Raw)
 	// 如果返回值为 1 则表示该 token 存在于黑名单之中
 	if haveField := rds.IsRedisKey(); haveField == 1 {
 		return c.JSON(result.NoPermission("Token 已过期，请重新登录"))
