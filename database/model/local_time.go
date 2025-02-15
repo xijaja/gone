@@ -13,29 +13,28 @@ type SomeTimesAt struct {
 }
 
 // LocalTime 自定义通用时间类型
-type LocalTime time.Time
+type LocalTime struct {
+	time.Time
+}
 
 // MarshalJSON 在从数据库读取时调用
-func (t *LocalTime) MarshalJSON() ([]byte, error) {
-	tTime := time.Time(*t)
+func (lt *LocalTime) MarshalJSON() ([]byte, error) {
+	tTime := lt.Time
 	return []byte(fmt.Sprintf("\"%v\"", tTime.Format("2006-01-02 15:04:05"))), nil
 }
 
 // Value 在写入数据库时调用
-func (t *LocalTime) Value() (driver.Value, error) {
-	var zeroTime time.Time
-	tlt := time.Time(*t)
-	// 判断给定时间是否和默认零时间的时间戳相同
-	if tlt.UnixNano() == zeroTime.UnixNano() {
+func (lt *LocalTime) Value() (driver.Value, error) {
+	if lt == nil || lt.Time.IsZero() {
 		return nil, nil
 	}
-	return tlt, nil
+	return lt.Time, nil
 }
 
 // Scan 在从数据库扫描时调用
-func (t *LocalTime) Scan(v interface{}) error {
+func (lt *LocalTime) Scan(v interface{}) error {
 	if value, ok := v.(time.Time); ok {
-		*t = LocalTime(value)
+		lt.Time = value
 		return nil
 	}
 	return fmt.Errorf("can not convert %v to timestamp", v)
@@ -43,5 +42,5 @@ func (t *LocalTime) Scan(v interface{}) error {
 
 // ToLocalTime 将 time.Time 转为 *LocalTime
 func ToLocalTime(time time.Time) *LocalTime {
-	return (*LocalTime)(&time)
+	return &LocalTime{Time: time}
 }
