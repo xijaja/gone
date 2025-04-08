@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"gone/apis"
 	"gone/apis/middleware"
@@ -11,8 +12,10 @@ import (
 func main() {
 	// 创建一个 Fiber 实例
 	app := fiber.New(fiber.Config{
-		AppName: "Gone App", // 设置应用名称
-		Prefork: *config.P,  // 是否启用多线程
+		AppName:     "Gone App",      // 设置应用名称
+		Prefork:     *config.P,       // 是否启用多线程
+		JSONEncoder: sonic.Marshal,   // json 序列化
+		JSONDecoder: sonic.Unmarshal, // json 反序列化
 	})
 
 	// 注册路由组和中间件
