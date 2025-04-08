@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gone/apis/handler"
 	"gone/apis/middleware"
+	"log"
 )
 
 // Router 路由组，访问以下所有路由都需加上 /api
@@ -27,5 +28,6 @@ func Router(app *fiber.App) {
 
 // 服务端 api 路由
 func hello(c *fiber.Ctx) error {
+	log.Println("hello")
 	return c.Status(fiber.StatusOK).SendString("👊 Yes, Iam working!")
 }

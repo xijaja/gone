@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gone/internal/auto"
+	"gone/pkg/utils"
 	"log"
 	"os"
 	"os/signal"
@@ -28,6 +29,9 @@ var Config = projectConfig{}
 
 // 初始化配置信息
 func init() {
+	// 初始化日志
+	utils.InitLogger()
+
 	// 检查是否在测试环境中
 	if testing.Testing() {
 		log.Println("当前为🧪测试环境🧪")
