@@ -34,6 +34,12 @@ COPY --from=builder /go/src/building/app ./app
 # 从 builder 阶段复制 .env 文件
 COPY --from=builder /go/src/building/.env .
 
+# 创建目录卷并设置权限
+RUN mkdir -p ./logs && chmod -R 777 ./logs
+
+# 声明卷
+VOLUME /logs
+
 # 声明容器将监听的端口
 EXPOSE 3030
 

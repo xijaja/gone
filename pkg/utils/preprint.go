@@ -7,7 +7,7 @@ import (
 )
 
 // PrettyStruct 格式化结构体
-func PrettyStruct(data interface{}) string {
+func PrettyStruct(data any) string {
 	val, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		log.Println("PrettyStruct 格式化结构体错误:", err)
@@ -26,7 +26,7 @@ func PrettyString(str string) string {
 }
 
 // Struct2JsonString 将结构体实例转换为JSON字符串
-func Struct2JsonString(data interface{}) string {
+func Struct2JsonString(data any) string {
 	val, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Struct2JsonString 将结构体实例转换为JSON字符串:", err)

@@ -5,6 +5,7 @@ DOCKER_IMAGE := $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 REMOTE_HOST := your-cloud-server-name
 DOCKER_BUILD_PLATFORM := linux/amd64
 PROJECT_PORT := 3030
+PROJECT_PATH := $(HOME)/$(DOCKER_IMAGE_NAME)
 
 # 构建前端项目
 .PHONY: frontend
@@ -29,7 +30,7 @@ run:
 	docker ps -a | grep $(DOCKER_IMAGE_NAME) || true && \
 	docker rm -f $(DOCKER_IMAGE_NAME) || true && \
 	docker image prune -f && \
-	docker run -itd --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
+	docker run -itd --name $(DOCKER_IMAGE_NAME) -v ./logs:/logs -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
 	docker ps | grep $(DOCKER_IMAGE_NAME)
 
 # 在远程主机上运行容器
@@ -39,7 +40,7 @@ remote-run:
 	docker ps -a | grep $(DOCKER_IMAGE_NAME) || true && \
 	docker rm -f $(DOCKER_IMAGE_NAME) || true && \
 	docker image prune -f && \
-	docker run -itd --name $(DOCKER_IMAGE_NAME) -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
+	docker run -itd --name $(DOCKER_IMAGE_NAME) -v $(PROJECT_PATH)/logs:/logs -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
 	docker ps | grep $(DOCKER_IMAGE_NAME)"
 
 # 清理本地镜像
