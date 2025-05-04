@@ -43,6 +43,11 @@ remote-run:
 	docker run -itd --name $(DOCKER_IMAGE_NAME) -v $(PROJECT_PATH)/logs:/logs -p $(PROJECT_PORT):$(PROJECT_PORT) $(DOCKER_IMAGE) -s && \
 	docker ps | grep $(DOCKER_IMAGE_NAME)"
 
+# 在远程主机上创建目录
+.PHONY: remote-mkdir
+remote-mkdir:
+	ssh $(REMOTE_HOST) "mkdir -p $(PROJECT_PATH)/logs"
+
 # 清理本地镜像
 .PHONY: clean
 clean:
@@ -84,6 +89,7 @@ help:
 	@echo "  make save             - 保存并传输镜像到远程主机"
 	@echo "  make remote-run       - 在远程主机上运行容器"
 	@echo "  make remote-ps        - 查看远程主机上的 Docker 状态"
+	@echo "  make remote-mkdir     - 在远程主机上创建目录"
 	@echo "  make remote-images    - 查看远程主机上的镜像"
 	@echo "  make deploy           - 执行完整的部署流程"
 	@echo "  make clean            - 清理本地镜像"
