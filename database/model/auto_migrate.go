@@ -41,7 +41,7 @@ func init() {
 // sqlTagExecutor sql tag 执行者
 // 传入任意数量个结构体指针，获取结构体的 sql tag
 // 如果不存在类型则创建，最后将指针返回用以自动迁移
-func sqlTagExecutor(t ...interface{}) []interface{} {
+func sqlTagExecutor(t ...any) []any {
 	for _, v := range t {
 		// 如果 v 是地址，则获取其指向的值
 		if reflect.TypeOf(v).Kind() == reflect.Ptr {

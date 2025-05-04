@@ -20,7 +20,7 @@ type LocalTime struct {
 // MarshalJSON 在从数据库读取时调用
 func (lt *LocalTime) MarshalJSON() ([]byte, error) {
 	tTime := lt.Time
-	return []byte(fmt.Sprintf("\"%v\"", tTime.Format("2006-01-02 15:04:05"))), nil
+	return fmt.Appendf(nil, "\"%v\"", tTime.Format("2006-01-02 15:04:05")), nil
 }
 
 // Value 在写入数据库时调用
@@ -32,7 +32,7 @@ func (lt *LocalTime) Value() (driver.Value, error) {
 }
 
 // Scan 在从数据库扫描时调用
-func (lt *LocalTime) Scan(v interface{}) error {
+func (lt *LocalTime) Scan(v any) error {
 	if value, ok := v.(time.Time); ok {
 		lt.Time = value
 		return nil

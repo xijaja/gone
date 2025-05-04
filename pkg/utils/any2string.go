@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nilorg/sdk/convert"
+	"log"
 )
 
 // AnyToString 类型转换工具，去吧：字符串
@@ -21,7 +22,8 @@ func AnyToString(src any) string {
 	}
 	data, err := json.Marshal(src)
 	if err != nil {
-		panic(err)
+		log.Println("AnyToString 类型转换失败", err)
+		return ""
 	}
 	return string(data)
 }
