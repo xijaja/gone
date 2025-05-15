@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	"gone/config"
+	"gone/internal/config"
 	"gone/svelte"
 	"io/fs"
 	"net/http"

@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
-	"gone/config"
 	"gone/database/access"
+	"gone/internal/config"
 	"gone/pkg/utils"
 	"gorm.io/gorm"
 	"log"

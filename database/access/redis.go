@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gomodule/redigo/redis"
-	"gone/config"
+	"gone/internal/config"
 )
 
 var RedisPool *redis.Pool // 创建redis连接池

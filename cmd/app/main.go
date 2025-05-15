@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gone/apis"
 	"gone/apis/middleware"
-	"gone/config"
+	"gone/internal/config"
 )
 
 // 程序入口

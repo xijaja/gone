@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	jwtWare "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
-	"gone/config"
 	"gone/database/cache"
+	"gone/internal/config"
 	"gone/internal/result"
 	"strings"
 	"time"
@@ -72,7 +72,7 @@ func jwtError(c *fiber.Ctx, err error) error {
 
 // 用于解密验证的函数
 func customKey() jwt.Keyfunc {
-	return func(t *jwt.Token) (interface{}, error) {
+	return func(t *jwt.Token) (any, error) {
 		// 始终检查签名方法
 		if t.Method.Alg() != jwtWare.HS256 {
 			return nil, fmt.Errorf("以为的 jwt 签名方式 => %v", t.Header["alg"])

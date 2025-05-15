@@ -2,7 +2,7 @@ package access
 
 import (
 	"fmt"
-	"gone/config"
+	"gone/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,10 +20,11 @@ func InitPostgresSQL(host, user, port, pass, base, sslmode string) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger:                 newLogger, // Gorm SQL 日志全局模式
 		SkipDefaultTransaction: true,      // 禁用默认事务，提升性能
-		PrepareStmt:            true,      // 执行 SQL 时缓存，提高调用速度
+		PrepareStmt:            *config.S, // 执行 SQL 时缓存，提高调用速度
 	})
 	if err != nil {
-		panic(fmt.Sprintf("致命错误：无法连接到数据库: %v", err))
+		log.Println("数据库连接字符串:", dsn)
+		log.Fatalf("致命错误：无法连接到数据库: %v", err)
 	}
 	return db
 }
@@ -56,7 +57,7 @@ var newLogger = logger.New(
 		SlowThreshold:             time.Second,   // 慢 SQL 阈值
 		LogLevel:                  getLogLevel(), // 日志级别
 		IgnoreRecordNotFoundError: true,          // 忽略 ErrRecordNotFound（记录未找到）错误
-		Colorful:                  false,         // 禁用彩色打印
+		Colorful:                  true,          // 禁用彩色打印
 	},
 )
 

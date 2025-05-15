@@ -4,13 +4,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gone/apis/handler"
 	"gone/apis/middleware"
+	"gone/internal/result"
 	"log"
 )
 
 // Router 路由组，访问以下所有路由都需加上 /api
 func Router(app *fiber.App) {
-	api := app.Group("api") // 创建 api 路由组
-	api.Get("/", hello)     // 保留的路由，用以验活
+	api := app.Group("api")              // 创建 api 路由组
+	api.Get("/", hello)                  // 保留的路由，用以验活
+	api.Get("/csrf-token", getCSRFToken) // CSRF token获取
 
 	apiV1 := api.Group("/v1", middleware.Auth()) // api/v1 路由组
 
@@ -30,4 +32,14 @@ func Router(app *fiber.App) {
 func hello(c *fiber.Ctx) error {
 	log.Println("hello")
 	return c.Status(fiber.StatusOK).SendString("👊 Yes, Iam working!")
+}
+
+// 获取CSRF token
+func getCSRFToken(c *fiber.Ctx) error {
+	// 从上下文中获取CSRF token
+	token := c.Locals("csrf-token")
+	if token == nil {
+		return c.JSON(result.Error("获取CSRF Token失败"))
+	}
+	return c.JSON(result.Success().WithData(fiber.Map{"token": token}))
 }
