@@ -20,7 +20,7 @@ func init() {
 	pgc := config.Config.Postgres
 	db = access.InitPostgresSQL(pgc.Host, pgc.User, pgc.Port, pgc.Pass, pgc.Base, pgc.Sslmode)
 	// 自动迁移，入参如 &Logs{}, &Todos{}
-	err := db.AutoMigrate(sqlTagExecutor(&Logs{}, &Todos{})...)
+	err := db.AutoMigrate(sqlTagExecutor(&Logs{}, &Todos{}, &User{})...)
 	if err != nil {
 		log.Fatal("数据库迁移失败:", err)
 	}

@@ -2,13 +2,15 @@ package handler
 
 import (
 	"errors"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 	"gone/apis/middleware"
 	"gone/database/cache"
 	"gone/database/model"
 	"gone/internal/result"
 	"gone/pkg/utils"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -41,7 +43,15 @@ func (u *User) Login(c *fiber.Ctx) error {
 	}
 
 	// 生成新的 jwt
-	tokenValue, err := middleware.NewJWT(req.Username, string(user.Role), 3) // 生成签名字符串
+	claims := middleware.Claims{
+		UserID:   user.Id.String(),
+		Username: user.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * 7 * time.Hour)), // JWT 有效期为 7 天
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                         // 签发时间
+		},
+	}
+	tokenValue, err := claims.NewJWT() // 生成签名字符串
 	if err != nil {
 		return c.JSON(result.Error("生成 Token 失败"))
 	}

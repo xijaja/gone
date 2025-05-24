@@ -14,7 +14,7 @@ func Router(app *fiber.App) {
 	api.Get("/", hello)                  // 保留的路由，用以验活
 	api.Get("/csrf-token", getCSRFToken) // CSRF token获取
 
-	apiV1 := api.Group("/v1", middleware.Auth()) // api/v1 路由组
+	apiV1 := api.Group("/v1", middleware.JwtAuth) // api/v1 路由组
 
 	var u *handler.User                // 用户管理
 	apiV1.Post("/user/login", u.Login) // 登录

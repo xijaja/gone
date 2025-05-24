@@ -6,8 +6,7 @@ require (
 	github.com/bytedance/sonic v1.13.2
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/gofiber/fiber/v2 v2.52.6
-	github.com/gofiber/jwt/v3 v3.3.10
-	github.com/golang-jwt/jwt/v4 v4.5.2
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gomodule/redigo v1.9.2
 	github.com/joho/godotenv v1.5.1
 	github.com/nilorg/sdk v0.0.0-20231213035036-8725c39df5a6

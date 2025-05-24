@@ -3,80 +3,72 @@ package middleware
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	jwtWare "github.com/gofiber/jwt/v3"
-	"github.com/golang-jwt/jwt/v4"
-	"gone/database/cache"
+	"github.com/golang-jwt/jwt/v5"
 	"gone/internal/config"
-	"gone/internal/result"
-	"strings"
+	"log"
 	"time"
 )
 
+// Claims 定义 JWT 的声明
+type Claims struct {
+	UserID   string `json:"user_id"`  // 用户ID
+	Username string `json:"username"` // 用户邮箱
+	jwt.RegisteredClaims
+}
+
 // NewJWT 用于创建 jwt 的中间件
-func NewJWT(username, role string, days uint8) (tokenValue string, err error) {
-	tokenSign := jwt.New(jwt.SigningMethodHS256)
-	claims := tokenSign.Claims.(jwt.MapClaims)
-	claims["username"] = username
-	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Hour * 24 * time.Duration(days)).Unix()
-	return tokenSign.SignedString([]byte(config.Config.JwtSecret)) // JwtSecret 生成 jwt 的密钥
+func (claims *Claims) NewJWT() (tokenString string, err error) {
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return jwtToken.SignedString([]byte(config.Config.JwtSecret))
 }
 
-// Auth 用于验证 jwt 的中间件
-func Auth() func(ctx *fiber.Ctx) error {
-	// return jwtWare.New(jwtWare.Config{
-	// 	ErrorHandler: jwtError,    // 用于处理错误的函数
-	// 	KeyFunc:      customKey(), // 用于解密验证的函数
-	// })
-	return func(ctx *fiber.Ctx) error {
-		// 如果访问的是 /api/v1/user/login 则跳过验证
-		if strings.HasPrefix(ctx.Path(), "/api/v1/user/login") {
-			return ctx.Next()
+// JwtAuth 用于验证 jwt 的中间件
+func JwtAuth(ctx *fiber.Ctx) error {
+	authHeader := ctx.Get("Authorization")
+	if authHeader == "" {
+		log.Println("缺少 Token 或格式错误")
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing or malformed token"})
+	}
+
+	// Token 通常以 "Bearer <token>" 的形式出现
+	const BearerSchema = "Bearer "
+	if len(authHeader) <= len(BearerSchema) || authHeader[:len(BearerSchema)] != BearerSchema {
+		log.Println("token 格式错误")
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token format"})
+	}
+	tokenString := authHeader[len(BearerSchema):]
+
+	// 解析 token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		// 确保 token 的签名算法是我们期望的
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			log.Println("token 签名算法错误")
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		// 返回一个中间件
-		return jwtWare.New(jwtWare.Config{
-			ErrorHandler:   jwtError,    // 用于处理错误的函数
-			KeyFunc:        customKey(), // 用于解密验证的函数
-			SuccessHandler: success,     // 验证通过后的逻辑
-		})(ctx)
+		return config.Config.JwtSecret, nil
+	})
+	if err != nil {
+		log.Println("token 解析错误")
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token: " + err.Error()})
 	}
-}
 
-// 验证通过后的逻辑
-func success(c *fiber.Ctx) error {
-	// 如果 token 作废，则要求用户重新登录
-	token := c.Locals("user").(*jwt.Token) // 获取 jwt, 并提取 token
-	rds := cache.NewRedis(token.Raw)
-	// 如果返回值为 1 则表示该 token 存在于黑名单之中
-	if haveField := rds.IsRedisKey(); haveField == 1 {
-		return c.JSON(result.NoPermission("Token 已过期，请重新登录"))
-	}
-	// 自动续期
-	// 如果 token 的有效期小于 7 天，则修改 token 的有效期加 1 天
-	nowTime := time.Now().Unix()
-	if token.Valid && token.Claims.(jwt.MapClaims)["exp"].(float64)-float64(nowTime) < float64(60*60*24*7) {
-		token.Claims.(jwt.MapClaims)["exp"] = time.Now().Add(time.Hour * 24).Unix()
-	} else {
-		return c.JSON(result.NoPermission("登录过期"))
-	}
-	return c.Next()
-}
-
-// 用于处理错误的函数
-func jwtError(c *fiber.Ctx, err error) error {
-	if err.Error() == "Missing or malformed JWT" {
-		return c.JSON(result.Error("缺少 Token 或格式错误"))
-	}
-	return c.JSON(result.NoPermission("无效或过期的 Token"))
-}
-
-// 用于解密验证的函数
-func customKey() jwt.Keyfunc {
-	return func(t *jwt.Token) (any, error) {
-		// 始终检查签名方法
-		if t.Method.Alg() != jwtWare.HS256 {
-			return nil, fmt.Errorf("以为的 jwt 签名方式 => %v", t.Header["alg"])
+	// 检查 token 是否有效
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		// 检查 JWT 是否过期
+		if exp, ok := claims["exp"].(float64); ok {
+			if time.Now().Unix() >= int64(exp) {
+				log.Println("token 已过期")
+				return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token is expired"})
+			}
+		} else {
+			log.Println("token 过期时间缺失")
+			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token claims: exp missing"})
 		}
-		return []byte(config.Config.JwtSecret), nil // JwtSecret 验证 jwt 的密钥
+		ctx.Locals("user", token) // 将解析后的 token 存储在 c.Locals 中，后续处理函数可以使用
+		return ctx.Next()
 	}
+
+	// 如果 token 无效，则返回 401 错误
+	log.Println("token 无效, 需要重新登录")
+	return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
 }
